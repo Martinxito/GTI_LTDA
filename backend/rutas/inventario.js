@@ -25,10 +25,10 @@ router.post('/', async (req, res) => {
   }
   try {
     const [result] = await db.query(
-      'INSERT INTO inventario (nombre, cantidad) VALUES (?, ?)',
+      'INSERT INTO inventario (nombre, cantidad) VALUES ($1, $2) RETURNING id',
       [nombre, cantidad]
     );
-    res.json({ id: result.insertId, nombre, cantidad });
+    res.json({ id: result.rows[0].id, nombre, cantidad });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al agregar repuesto' });
@@ -44,7 +44,7 @@ router.put('/:id', async (req, res) => {
   }
   try {
     await db.query(
-      'UPDATE inventario SET nombre = ?, cantidad = ? WHERE id = ?',
+      'UPDATE inventario SET nombre = $1, cantidad = $2 WHERE id = $3',
       [nombre, cantidad, id]
     );
     res.json({ id, nombre, cantidad });
@@ -58,7 +58,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await db.query('DELETE FROM inventario WHERE id = ?', [id]);
+    await db.query('DELETE FROM inventario WHERE id = $1', [id]);
     res.json({ mensaje: 'Repuesto eliminado', id });
   } catch (error) {
     console.error(error);

@@ -6,39 +6,37 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
-import { inventarioService } from "../Servicios/api";
+import { serviciosService } from "../Servicios/api";
 
-function JefeTaller() {
+function GestionServicios() {
   const { user } = useAuth();
-  const [inventario, setInventario] = useState([]);
+  const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
+  const [editingServicio, setEditingServicio] = useState(null);
 
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
-    cantidad: "",
-    cantidad_minima: "",
-    precio_compra: "",
-    precio_venta: "",
-    categoria: ""
+    precio: "",
+    categoria: "",
+    duracion_estimada: ""
   });
 
   useEffect(() => {
-    loadInventario();
+    loadServicios();
   }, []);
 
-  const loadInventario = async () => {
+  const loadServicios = async () => {
     try {
       setLoading(true);
-      const data = await inventarioService.getAll();
-      setInventario(Array.isArray(data) ? data : []);
+      const data = await serviciosService.getAll();
+      setServicios(Array.isArray(data) ? data : []);
     } catch (error) {
-      setError("Error al cargar inventario: " + error.message);
-      setInventario([]);
+      setError("Error al cargar servicios: " + error.message);
+      setServicios([]);
     } finally {
       setLoading(false);
     }
@@ -50,121 +48,82 @@ function JefeTaller() {
     setSuccess("");
 
     try {
-      if (editingItem) {
-        await inventarioService.update(editingItem.id, formData);
-        setSuccess("Item actualizado correctamente");
+      if (editingServicio) {
+        await serviciosService.update(editingServicio.id, formData);
+        setSuccess("Servicio actualizado correctamente");
       } else {
-        await inventarioService.create(formData);
-        setSuccess("Item creado correctamente");
+        await serviciosService.create(formData);
+        setSuccess("Servicio creado correctamente");
       }
       
       setShowForm(false);
-      setEditingItem(null);
-      setFormData({ nombre: "", descripcion: "", cantidad: "", cantidad_minima: "", precio_compra: "", precio_venta: "", categoria: "" });
-      loadInventario();
+      setEditingServicio(null);
+      setFormData({ nombre: "", descripcion: "", precio: "", categoria: "", duracion_estimada: "" });
+      loadServicios();
     } catch (error) {
-      setError("Error al guardar item: " + error.message);
+      setError("Error al guardar servicio: " + error.message);
     }
   };
 
-  const handleEdit = (item) => {
-    setEditingItem(item);
+  const handleEdit = (servicio) => {
+    setEditingServicio(servicio);
     setFormData({
-      nombre: item.nombre || "",
-      descripcion: item.descripcion || "",
-      cantidad: item.cantidad || "",
-      cantidad_minima: item.cantidad_minima || "",
-      precio_compra: item.precio_compra || "",
-      precio_venta: item.precio_venta || "",
-      categoria: item.categoria || ""
+      nombre: servicio.nombre || "",
+      descripcion: servicio.descripcion || "",
+      precio: servicio.precio || "",
+      categoria: servicio.categoria || "",
+      duracion_estimada: servicio.duracion_estimada || ""
     });
     setShowForm(true);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este item?")) {
+    if (window.confirm("¿Estás seguro de que quieres eliminar este servicio?")) {
       try {
-        await inventarioService.delete(id);
-        setSuccess("Item eliminado correctamente");
-        loadInventario();
+        await serviciosService.delete(id);
+        setSuccess("Servicio eliminado correctamente");
+        loadServicios();
       } catch (error) {
-        setError("Error al eliminar item: " + error.message);
+        setError("Error al eliminar servicio: " + error.message);
       }
     }
   };
 
   const categorias = [
-    "Repuestos",
-    "Herramientas",
-    "Lubricantes",
-    "Filtros",
-    "Frenos",
-    "Suspensión",
-    "Motor",
-    "Eléctrico",
+    "Mantenimiento Preventivo",
+    "Reparación",
+    "Diagnóstico",
+    "Limpieza",
+    "Revisión Técnica",
     "Otros"
   ];
 
-  const getStockStatus = (cantidad, cantidadMinima) => {
-    const cantidadNum = parseInt(cantidad);
-    const minimaNum = parseInt(cantidadMinima);
-    
-    if (cantidadNum <= minimaNum) {
-      return { color: "#ef4444", text: "Stock Bajo", icon: "⚠️" };
-    } else if (cantidadNum <= minimaNum * 2) {
-      return { color: "#f59e0b", text: "Stock Medio", icon: "⚡" };
-    } else {
-      return { color: "#10b981", text: "Stock OK", icon: "✅" };
-    }
-  };
-
   const columns = [
     { key: "nombre", label: "Nombre" },
+    { key: "descripcion", label: "Descripción" },
     { key: "categoria", label: "Categoría" },
     { 
-      key: "cantidad", 
-      label: "Cantidad",
-      render: (item) => (
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <span>{item.cantidad}</span>
-          {(() => {
-            const status = getStockStatus(item.cantidad, item.cantidad_minima);
-            return (
-              <span style={{ color: status.color, fontSize: "0.875rem" }}>
-                {status.icon}
-              </span>
-            );
-          })()}
-        </div>
-      )
+      key: "precio", 
+      label: "Precio",
+      render: (servicio) => servicio.precio ? `$${parseInt(servicio.precio).toLocaleString()}` : 'N/A'
     },
-    { key: "cantidad_minima", label: "Mínimo" },
-    { 
-      key: "precio_compra", 
-      label: "Precio Compra",
-      render: (item) => `$${parseInt(item.precio_compra || 0).toLocaleString()}`
-    },
-    { 
-      key: "precio_venta", 
-      label: "Precio Venta",
-      render: (item) => `$${parseInt(item.precio_venta || 0).toLocaleString()}`
-    },
+    { key: "duracion_estimada", label: "Duración (min)" },
     {
       key: "actions",
       label: "Acciones",
-      render: (item) => (
+      render: (servicio) => (
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => handleEdit(item)}
+            onClick={() => handleEdit(servicio)}
           >
             ✏️ Editar
           </Button>
           <Button
             variant="danger"
             size="sm"
-            onClick={() => handleDelete(item.id)}
+            onClick={() => handleDelete(servicio.id)}
           >
             🗑️ Eliminar
           </Button>
@@ -173,10 +132,6 @@ function JefeTaller() {
     }
   ];
 
-  const stockBajo = inventario.filter(item => 
-    parseInt(item.cantidad) <= parseInt(item.cantidad_minima)
-  );
-
   return (
     <div>
       <Menu />
@@ -184,36 +139,28 @@ function JefeTaller() {
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
           <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", margin: 0 }}>
-            📦 Gestión de Inventario
+            🔧 Gestión de Servicios
           </h1>
           <Button
             onClick={() => {
               setShowForm(true);
-              setEditingItem(null);
-              setFormData({ nombre: "", descripcion: "", cantidad: "", cantidad_minima: "", precio_compra: "", precio_venta: "", categoria: "" });
+              setEditingServicio(null);
+              setFormData({ nombre: "", descripcion: "", precio: "", categoria: "", duracion_estimada: "" });
             }}
           >
-            ➕ Nuevo Item
+            ➕ Nuevo Servicio
           </Button>
         </div>
 
         {error && <Alert type="error" onClose={() => setError("")}>{error}</Alert>}
         {success && <Alert type="success" onClose={() => setSuccess("")}>{success}</Alert>}
 
-        {/* Alertas de stock bajo */}
-        {stockBajo.length > 0 && (
-          <Alert type="warning">
-            ⚠️ <strong>Stock Bajo:</strong> {stockBajo.length} item(s) necesitan reposición:
-            {stockBajo.map(item => ` ${item.nombre}`).join(", ")}
-          </Alert>
-        )}
-
         {showForm && (
-          <Card title={editingItem ? "Editar Item" : "Nuevo Item"} className="mb-6">
+          <Card title={editingServicio ? "Editar Servicio" : "Nuevo Servicio"} className="mb-6">
             <form onSubmit={handleSubmit}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1rem" }}>
                 <Input
-                  label="Nombre del Item"
+                  label="Nombre del Servicio"
                   value={formData.nombre}
                   onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                   required
@@ -251,31 +198,17 @@ function JefeTaller() {
                   </select>
                 </div>
                 <Input
-                  label="Cantidad Actual"
+                  label="Precio"
                   type="number"
-                  value={formData.cantidad}
-                  onChange={(e) => setFormData({ ...formData, cantidad: e.target.value })}
+                  value={formData.precio}
+                  onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
                   required
                 />
                 <Input
-                  label="Cantidad Mínima"
+                  label="Duración Estimada (minutos)"
                   type="number"
-                  value={formData.cantidad_minima}
-                  onChange={(e) => setFormData({ ...formData, cantidad_minima: e.target.value })}
-                  required
-                />
-                <Input
-                  label="Precio de Compra"
-                  type="number"
-                  value={formData.precio_compra}
-                  onChange={(e) => setFormData({ ...formData, precio_compra: e.target.value })}
-                  required
-                />
-                <Input
-                  label="Precio de Venta"
-                  type="number"
-                  value={formData.precio_venta}
-                  onChange={(e) => setFormData({ ...formData, precio_venta: e.target.value })}
+                  value={formData.duracion_estimada}
+                  onChange={(e) => setFormData({ ...formData, duracion_estimada: e.target.value })}
                   required
                 />
                 <div style={{ gridColumn: "1 / -1" }}>
@@ -302,22 +235,22 @@ function JefeTaller() {
                       minHeight: "100px",
                       resize: "vertical"
                     }}
-                    placeholder="Descripción del item..."
+                    required
                   />
                 </div>
               </div>
               
               <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                 <Button type="submit">
-                  {editingItem ? "💾 Actualizar" : "➕ Crear"}
+                  {editingServicio ? "💾 Actualizar" : "➕ Crear"}
                 </Button>
                 <Button
                   type="button"
                   variant="secondary"
                   onClick={() => {
                     setShowForm(false);
-                    setEditingItem(null);
-                    setFormData({ nombre: "", descripcion: "", cantidad: "", cantidad_minima: "", precio_compra: "", precio_venta: "", categoria: "" });
+                    setEditingServicio(null);
+                    setFormData({ nombre: "", descripcion: "", precio: "", categoria: "", duracion_estimada: "" });
                   }}
                 >
                   ❌ Cancelar
@@ -327,12 +260,12 @@ function JefeTaller() {
           </Card>
         )}
 
-        <Card title="Inventario">
+        <Card title="Lista de Servicios">
           <Table
-            data={inventario}
+            data={servicios}
             columns={columns}
             loading={loading}
-            emptyMessage="No hay items en el inventario"
+            emptyMessage="No hay servicios registrados"
           />
         </Card>
       </div>
@@ -340,4 +273,4 @@ function JefeTaller() {
   );
 }
 
-export default JefeTaller;
+export default GestionServicios;

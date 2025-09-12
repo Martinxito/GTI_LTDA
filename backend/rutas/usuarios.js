@@ -4,7 +4,7 @@ const db = require('../db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = 'mi_super_clave_secreta_2025_gti_ltda';
+const JWT_SECRET = process.env.JWT_SECRET || 'mi_super_clave_secreta_2025_gti_ltda';
 
 // Registrar usuario
 router.post('/register', async (req, res) => {
@@ -15,7 +15,7 @@ router.post('/register', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     await db.query(
-      'INSERT INTO usuarios (nombre, usuario, password, rol) VALUES (?, ?, ?, ?)',
+      'INSERT INTO usuarios (nombre, usuario, password, rol) VALUES ($1, $2, $3, $4)',
       [nombre, usuario, hashedPassword, rol]
     );
     res.json({ mensaje: 'Usuario registrado' });
@@ -32,7 +32,7 @@ router.post('/login', async (req, res) => {
     return res.status(400).json({ error: 'Faltan datos' });
   }
   try {
-    const [rows] = await db.query('SELECT * FROM usuarios WHERE usuario = ?', [usuario]);
+    const [rows] = await db.query('SELECT * FROM usuarios WHERE usuario = $1', [usuario]);
     if (rows.length === 0) {
       return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
     }

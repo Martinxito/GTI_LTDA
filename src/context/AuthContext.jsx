@@ -1,29 +1,88 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import { authService, verifyToken, clearAuth } from "../Servicios/api";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (usuario, password) => {
-    // Aquí iría la llamada real a tu backend
-    if (usuario === "admin" && password === "admin") {
-      setUser({ nombre: "Martín", rol: "jefe-taller" });
-      return { success: true, rol: "jefe-taller" };
-    } else if (usuario === "cliente" && password === "cliente") {
-      setUser({ nombre: "Cliente", rol: "cliente" });
-      return { success: true, rol: "cliente" };
-    } else if (usuario === "mecanico" && password === "mecanico") {
-      setUser({ nombre: "Mecánico", rol: "mecanico" });
-      return { success: true, rol: "mecanico" };
+  // Verificar si hay un usuario logueado al cargar la app
+  useEffect(() => {
+    const initAuth = async () => {
+      console.log('Inicializando autenticación...');
+      const token = localStorage.getItem('token');
+      const savedUser = localStorage.getItem('user');
+      
+      console.log('Token encontrado:', !!token);
+      console.log('Usuario guardado:', !!savedUser);
+      
+      if (token && savedUser) {
+        try {
+          const isValid = await verifyToken();
+          console.log('Token válido:', isValid);
+          if (isValid) {
+            const userData = JSON.parse(savedUser);
+            setUser(userData);
+            console.log('Usuario restaurado:', userData);
+          } else {
+            console.log('Token inválido, limpiando...');
+            clearAuth();
+          }
+        } catch (error) {
+          console.error('Error verificando token:', error);
+          clearAuth();
+        }
+      }
+      setLoading(false);
+      console.log('Inicialización de autenticación completada');
+    };
+
+    initAuth();
+  }, []);
+
+  const login = async (usuario, password) => {
+    try {
+      setLoading(true);
+      console.log('Iniciando login para usuario:', usuario);
+      const response = await authService.login(usuario, password);
+      console.log('Respuesta del login:', response);
+      
+      // Guardar token y usuario en localStorage
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+      
+      setUser(response.user);
+      console.log('Usuario establecido:', response.user);
+      return { success: true, rol: response.user.rol };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
     }
-    return { success: false };
   };
 
-  const logout = () => setUser(null);
+  const logout = () => {
+    clearAuth();
+    setUser(null);
+  };
+
+  const register = async (userData) => {
+    try {
+      setLoading(true);
+      await authService.register(userData);
+      return { success: true };
+    } catch (error) {
+      console.error('Register error:', error);
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, register, loading }}>
       {children}
     </AuthContext.Provider>
   );
