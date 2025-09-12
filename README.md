@@ -2,6 +2,11 @@
 # Primer-Proyecto
 =======
 # React + Vite
+# NodeJs + Express
+
+npm run dev en carpeta inicial
+
+npm start en carpeta backend
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
