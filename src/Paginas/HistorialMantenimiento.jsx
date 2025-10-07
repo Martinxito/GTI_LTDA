@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
@@ -10,33 +10,30 @@ import { vehiculosService, citasService } from "../Servicios/api";
 function HistorialMantenimiento() {
   const { user } = useAuth();
   const [vehiculos, setVehiculos] = useState([]);
-  const [citas, setCitas] = useState([]);
   const [historial, setHistorial] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedVehiculo, setSelectedVehiculo] = useState(null);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
+    if (!user) {
+      return;
+    }
     try {
       setLoading(true);
       const [vehiculosData, citasData] = await Promise.all([
         vehiculosService.getAll(),
         citasService.getAll()
       ]);
-      
+
       // Filtrar vehículos según el rol del usuario
       let vehiculosFiltrados = vehiculosData;
       if (user.rol === 'cliente') {
         vehiculosFiltrados = vehiculosData.filter(vehiculo => vehiculo.cliente_id === user.id);
       }
-      
+
       setVehiculos(Array.isArray(vehiculosFiltrados) ? vehiculosFiltrados : []);
-      setCitas(Array.isArray(citasData) ? citasData : []);
-      
+
       // Crear historial combinando citas completadas con información de vehículos
       const historialCompleto = citasData
         .filter(cita => cita && cita.estado === 'completada' && cita.fecha_hora)
@@ -59,7 +56,11 @@ function HistorialMantenimiento() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const getVehiculoHistorial = (vehiculoId) => {
     return historial.filter(item => item.vehiculo_id === vehiculoId);

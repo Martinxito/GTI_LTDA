@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { citasService } from '../Servicios/api';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
@@ -18,11 +18,7 @@ const Calendar = ({ onDateSelect, onAppointmentClick }) => {
 
   const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-  useEffect(() => {
-    loadAppointments();
-  }, [currentDate, view]);
-
-  const loadAppointments = async () => {
+  const loadAppointments = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -52,7 +48,11 @@ const Calendar = ({ onDateSelect, onAppointmentClick }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentDate, view]);
+
+  useEffect(() => {
+    loadAppointments();
+  }, [loadAppointments]);
 
   const getStartOfWeek = (date) => {
     const d = new Date(date);

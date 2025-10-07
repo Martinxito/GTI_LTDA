@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
@@ -12,31 +12,37 @@ function Cliente() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("citas");
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [citasData, vehiculosData] = await Promise.all([
         citasService.getAll(),
         vehiculosService.getAll()
       ]);
-      
+
       // Filtrar citas del cliente actual
-      const citasCliente = Array.isArray(citasData) ? citasData.filter(cita => cita && cita.cliente_id === user.id) : [];
+      const citasCliente = Array.isArray(citasData) && user
+        ? citasData.filter(cita => cita && cita.cliente_id === user.id)
+        : [];
       setCitas(citasCliente);
-      
+
       // Filtrar vehículos del cliente actual
-      const vehiculosCliente = Array.isArray(vehiculosData) ? vehiculosData.filter(vehiculo => vehiculo && vehiculo.cliente_id === user.id) : [];
+      const vehiculosCliente = Array.isArray(vehiculosData) && user
+        ? vehiculosData.filter(vehiculo => vehiculo && vehiculo.cliente_id === user.id)
+        : [];
       setVehiculos(vehiculosCliente);
     } catch (error) {
       console.error("Error al cargar datos:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadData();
+    }
+  }, [loadData, user]);
 
   const getEstadoColor = (estado) => {
     switch (estado) {
@@ -138,6 +144,10 @@ function Cliente() {
             </button>
           ))}
         </div>
+
+        {loading && (
+          <p style={{ color: "#64748b", marginBottom: "1rem" }}>Cargando información...</p>
+        )}
 
         {/* Contenido de las pestañas */}
         {activeTab === "citas" && (

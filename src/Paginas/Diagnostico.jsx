@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
@@ -15,7 +15,7 @@ function Diagnostico() {
 
     try {
       // Probar servicios API
-      const { authService, clientesService, vehiculosService, serviciosService, citasService } = await import("../Servicios/api");
+      const { clientesService, vehiculosService, serviciosService, citasService } = await import("../Servicios/api");
       
       // Probar autenticación
       try {

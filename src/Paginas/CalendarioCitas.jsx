@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import { citasService } from "../Servicios/api";
 
 function CalendarioCitas() {
-  const { user } = useAuth();
   const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -132,6 +130,9 @@ function CalendarioCitas() {
         </div>
 
         <Card>
+          {loading && (
+            <p style={{ marginBottom: "1rem", color: "#64748b" }}>Cargando citas...</p>
+          )}
           {/* Encabezados de días */}
           <div style={{
             display: "grid",

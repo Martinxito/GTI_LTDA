@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -9,7 +8,6 @@ import Table from "../components/ui/Table";
 import { citasService, clientesService, vehiculosService, serviciosService } from "../Servicios/api";
 
 function GestionCitas() {
-  const { user } = useAuth();
   const [citas, setCitas] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
