@@ -9,9 +9,12 @@ function DashboardMecanico() {
       <Menu />
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", marginBottom: "2rem" }}>
+        <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", marginBottom: "0.5rem" }}>
           🔧 Panel del Mecánico
         </h1>
+        <p style={{ color: "#64748b", marginBottom: "2rem" }}>
+          {user?.nombre ? `Listo para trabajar, ${user.nombre}? ` : ""}Aquí encontrarás tus próximas tareas.
+        </p>
         
         <div style={{
           display: "grid",

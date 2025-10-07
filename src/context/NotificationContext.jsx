@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { citasService, inventarioService } from '../Servicios/api';
 
 const NotificationContext = createContext();
@@ -53,66 +53,66 @@ export function NotificationProvider({ children }) {
     }
   };
 
+  // Eliminar notificación
+  const removeNotification = useCallback((id) => {
+    setNotifications(prev => {
+      const notification = prev.find(n => n.id === id);
+      if (notification && !notification.read) {
+        setUnreadCount(prevCount => Math.max(0, prevCount - 1));
+      }
+      return prev.filter(n => n.id !== id);
+    });
+  }, []);
+
   // Agregar una nueva notificación
-  const addNotification = (notification) => {
+  const addNotification = useCallback((notification) => {
     const newNotification = {
       id: Date.now() + Math.random(),
       timestamp: new Date(),
       read: false,
       ...notification
     };
-    
+
     setNotifications(prev => [newNotification, ...prev]);
     setUnreadCount(prev => prev + 1);
-    
+
     // Auto-eliminar notificaciones después de 7 días
     setTimeout(() => {
       removeNotification(newNotification.id);
     }, 7 * 24 * 60 * 60 * 1000);
-  };
+  }, [removeNotification]);
 
   // Marcar notificación como leída
-  const markAsRead = (id) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
+  const markAsRead = useCallback((id) => {
+    setNotifications(prev =>
+      prev.map(notification =>
+        notification.id === id
           ? { ...notification, read: true }
           : notification
       )
     );
     setUnreadCount(prev => Math.max(0, prev - 1));
-  };
+  }, []);
 
   // Marcar todas como leídas
-  const markAllAsRead = () => {
-    setNotifications(prev => 
+  const markAllAsRead = useCallback(() => {
+    setNotifications(prev =>
       prev.map(notification => ({ ...notification, read: true }))
     );
     setUnreadCount(0);
-  };
-
-  // Eliminar notificación
-  const removeNotification = (id) => {
-    setNotifications(prev => {
-      const notification = prev.find(n => n.id === id);
-      if (notification && !notification.read) {
-        setUnreadCount(prev => Math.max(0, prev - 1));
-      }
-      return prev.filter(n => n.id !== id);
-    });
-  };
+  }, []);
 
   // Limpiar todas las notificaciones
-  const clearAll = () => {
+  const clearAll = useCallback(() => {
     setNotifications([]);
     setUnreadCount(0);
-  };
+  }, []);
 
   // Verificar stock bajo
-  const checkLowStock = async () => {
+  const checkLowStock = useCallback(async () => {
     try {
       const inventario = await inventarioService.getAll();
-      const stockBajo = inventario.filter(item => 
+      const stockBajo = inventario.filter(item =>
         item.cantidad <= (item.cantidad_minima || 5)
       );
 
@@ -127,10 +127,10 @@ export function NotificationProvider({ children }) {
     } catch (error) {
       console.error('Error checking low stock:', error);
     }
-  };
+  }, [NOTIFICATION_TYPES.STOCK_LOW, addNotification]);
 
   // Verificar citas del día
-  const checkTodaysAppointments = async () => {
+  const checkTodaysAppointments = useCallback(async () => {
     try {
       const hoy = new Date().toISOString().split('T')[0];
       const citasHoy = await citasService.getByDate(hoy);
@@ -148,10 +148,10 @@ export function NotificationProvider({ children }) {
     } catch (error) {
       console.error('Error checking today appointments:', error);
     }
-  };
+  }, [NOTIFICATION_TYPES.APPOINTMENT_TODAY, addNotification]);
 
   // Verificar citas vencidas
-  const checkOverdueAppointments = async () => {
+  const checkOverdueAppointments = useCallback(async () => {
     try {
       const hoy = new Date();
       const citas = await citasService.getAll();
@@ -172,10 +172,10 @@ export function NotificationProvider({ children }) {
     } catch (error) {
       console.error('Error checking overdue appointments:', error);
     }
-  };
+  }, [NOTIFICATION_TYPES.APPOINTMENT_OVERDUE, addNotification]);
 
   // Verificar todas las notificaciones
-  const checkAllNotifications = async () => {
+  const checkAllNotifications = useCallback(async () => {
     setIsLoading(true);
     try {
       await Promise.all([
@@ -188,15 +188,15 @@ export function NotificationProvider({ children }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [checkLowStock, checkTodaysAppointments, checkOverdueAppointments]);
 
   // Verificar notificaciones cada 5 minutos
   useEffect(() => {
     checkAllNotifications();
-    
+
     const interval = setInterval(checkAllNotifications, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [checkAllNotifications]);
 
   const value = {
     notifications,

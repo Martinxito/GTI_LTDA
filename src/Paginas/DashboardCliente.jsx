@@ -9,9 +9,12 @@ function DashboardCliente() {
       <Menu />
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", marginBottom: "2rem" }}>
+        <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", marginBottom: "0.5rem" }}>
           👤 Mi Panel de Cliente
         </h1>
+        <p style={{ color: "#64748b", marginBottom: "2rem" }}>
+          {user?.nombre ? `Hola, ${user.nombre}. ` : ""}Aquí podrás gestionar tus citas y vehículos.
+        </p>
         
         <div style={{
           display: "grid",

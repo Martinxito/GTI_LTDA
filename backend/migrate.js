@@ -44,7 +44,7 @@ async function migrate() {
         ALTER TABLE usuarios 
         ADD CONSTRAINT usuarios_email_unique UNIQUE (email)
       `);
-    } catch (error) {
+    } catch (_error) {
       // La restricción ya existe, continuar
     }
 
@@ -390,7 +390,7 @@ async function migrate() {
 
     console.log('🎉 Migración completada exitosamente!');
     
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ Error durante la migración:', error);
   } finally {
     client.release();

@@ -267,17 +267,7 @@ export const citasService = {
 // Función para verificar si el token es válido
 export const verifyToken = async () => {
   const token = localStorage.getItem('token');
-  if (!token) return false;
-  
-  try {
-    // Podrías hacer una petición al backend para verificar el token
-    // Por ahora, solo verificamos que existe
-    return true;
-  } catch (error) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    return false;
-  }
+  return Boolean(token);
 };
 
 // Función para limpiar datos de autenticación

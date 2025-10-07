@@ -35,7 +35,7 @@ function Dashboard() {
           color: "#64748b",
           margin: 0
         }}>
-          ¡Bienvenido al sistema de gestión de GTI LTDA!
+          ¡Bienvenido{user?.nombre ? `, ${user.nombre}` : ""} al sistema de gestión de GTI LTDA!
         </p>
         
         <div style={{

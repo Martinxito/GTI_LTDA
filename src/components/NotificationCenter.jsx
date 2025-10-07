@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNotifications } from '../context/NotificationContext';
 import Card from './ui/Card';
 import Button from './ui/Button';
-import Alert from './ui/Alert';
 
 const NotificationCenter = () => {
   const {
@@ -112,6 +111,7 @@ const NotificationCenter = () => {
                     !notification.read ? 'bg-blue-50' : ''
                   }`}
                   onClick={() => handleNotificationClick(notification)}
+                  style={{ borderLeft: `4px solid ${getNotificationColor(notification.type)}` }}
                 >
                   <div className="flex items-start gap-3">
                     <div className="text-lg">

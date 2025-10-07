@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -9,7 +8,6 @@ import Table from "../components/ui/Table";
 import { inventarioService } from "../Servicios/api";
 
 function JefeTaller() {
-  const { user } = useAuth();
   const [inventario, setInventario] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

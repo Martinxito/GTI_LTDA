@@ -6,7 +6,7 @@ class ErrorBoundary extends React.Component {
     this.state = { hasError: false, error: null, errorInfo: null };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error) {
     // Actualiza el state para mostrar la UI de error
     return { hasError: true };
   }
@@ -99,7 +99,10 @@ class ErrorBoundary extends React.Component {
               </button>
             </div>
             
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {(() => {
+              const isDev = typeof globalThis !== 'undefined' && globalThis.process?.env?.NODE_ENV === 'development';
+              return isDev && this.state.error;
+            })() && (
               <details style={{
                 marginTop: "2rem",
                 padding: "1rem",

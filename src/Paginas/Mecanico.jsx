@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import { citasService } from "../Servicios/api";
 
 function Mecanico() {
-  const { user } = useAuth();
   const [citas, setCitas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({
@@ -82,9 +80,12 @@ function Mecanico() {
       <Menu />
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", marginBottom: "2rem" }}>
+        <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", marginBottom: "0.5rem" }}>
           🔧 Panel del Mecánico
         </h1>
+        {loading && (
+          <p style={{ color: "#64748b", marginBottom: "1.5rem" }}>Cargando citas asignadas...</p>
+        )}
 
         {/* Estadísticas */}
         <div style={{
