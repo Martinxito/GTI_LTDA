@@ -29,10 +29,14 @@ async function migrate() {
 
     // Agregar nuevas columnas a la tabla usuarios si no existen
     await client.query(`
-      ALTER TABLE usuarios 
+      ALTER TABLE usuarios
       ADD COLUMN IF NOT EXISTS apellido VARCHAR(100),
       ADD COLUMN IF NOT EXISTS email VARCHAR(255),
       ADD COLUMN IF NOT EXISTS telefono VARCHAR(20),
+      ADD COLUMN IF NOT EXISTS direccion TEXT,
+      ADD COLUMN IF NOT EXISTS fecha_nacimiento DATE,
+      ADD COLUMN IF NOT EXISTS documento_identidad VARCHAR(20),
+      ADD COLUMN IF NOT EXISTS tipo_documento VARCHAR(10) DEFAULT 'CC',
       ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT true,
       ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     `);
@@ -41,33 +45,27 @@ async function migrate() {
     // Agregar restricción única al email si no existe
     try {
       await client.query(`
-        ALTER TABLE usuarios 
+        ALTER TABLE usuarios
         ADD CONSTRAINT usuarios_email_unique UNIQUE (email)
       `);
     } catch (_error) {
       // La restricción ya existe, continuar
     }
 
-    // Crear tabla de clientes
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS clientes (
-        id SERIAL PRIMARY KEY,
-        usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
-        direccion TEXT,
-        fecha_nacimiento DATE,
-        documento_identidad VARCHAR(20) UNIQUE,
-        tipo_documento VARCHAR(10) DEFAULT 'CC',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    console.log('✓ Tabla clientes creada');
+    try {
+      await client.query(`
+        ALTER TABLE usuarios
+        ADD CONSTRAINT usuarios_documento_unique UNIQUE (documento_identidad)
+      `);
+    } catch (_error) {
+      // La restricción ya existe, continuar
+    }
 
     // Crear tabla de vehículos
     await client.query(`
       CREATE TABLE IF NOT EXISTS vehiculos (
         id SERIAL PRIMARY KEY,
-        cliente_id INTEGER REFERENCES clientes(id) ON DELETE CASCADE,
+        cliente_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
         marca VARCHAR(50) NOT NULL,
         modelo VARCHAR(50) NOT NULL,
         año INTEGER NOT NULL,
@@ -105,7 +103,7 @@ async function migrate() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS citas (
         id SERIAL PRIMARY KEY,
-        cliente_id INTEGER REFERENCES clientes(id) ON DELETE CASCADE,
+        cliente_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
         vehiculo_id INTEGER REFERENCES vehiculos(id) ON DELETE CASCADE,
         servicio_id INTEGER REFERENCES servicios(id),
         mecanico_id INTEGER REFERENCES usuarios(id),
@@ -169,7 +167,7 @@ async function migrate() {
         id SERIAL PRIMARY KEY,
         numero_factura VARCHAR(20) UNIQUE NOT NULL,
         cita_id INTEGER REFERENCES citas(id),
-        cliente_id INTEGER REFERENCES clientes(id),
+        cliente_id INTEGER REFERENCES usuarios(id),
         subtotal DECIMAL(10,2) NOT NULL DEFAULT 0,
         descuento DECIMAL(10,2) DEFAULT 0,
         impuestos DECIMAL(10,2) DEFAULT 0,
@@ -227,7 +225,7 @@ async function migrate() {
     `);
 
     // Crear triggers para todas las tablas
-    const tables = ['usuarios', 'clientes', 'vehiculos', 'servicios', 'citas', 'inventario', 'facturas'];
+    const tables = ['usuarios', 'vehiculos', 'servicios', 'citas', 'inventario', 'facturas'];
     for (const table of tables) {
       await client.query(`
         DROP TRIGGER IF EXISTS update_${table}_updated_at ON ${table};
@@ -257,41 +255,47 @@ async function migrate() {
     const bcrypt = require('bcryptjs');
     
     const usuariosPrueba = [
-      { 
-        nombre: 'Administrador', 
+      {
+        nombre: 'Administrador',
         apellido: 'Sistema',
         email: 'admin@gti.com',
         telefono: '3001234567',
-        usuario: 'admin', 
-        password: 'admin123', 
-        rol: 'jefe_taller' 
+        usuario: 'admin',
+        password: 'admin123',
+        rol: 'jefe_taller'
       },
-      { 
-        nombre: 'Juan', 
+      {
+        nombre: 'Juan',
         apellido: 'Pérez',
         email: 'juan.perez@email.com',
         telefono: '3007654321',
-        usuario: 'cliente', 
-        password: 'cliente123', 
-        rol: 'cliente' 
+        direccion: 'Calle 123 #45-67, Bogotá',
+        documento_identidad: 'CC100000001',
+        tipo_documento: 'CC',
+        usuario: 'cliente',
+        password: 'cliente123',
+        rol: 'cliente'
       },
-      { 
-        nombre: 'Carlos', 
+      {
+        nombre: 'Carlos',
         apellido: 'Mecánico',
         email: 'carlos.mecanico@gti.com',
         telefono: '3009876543',
-        usuario: 'mecanico', 
-        password: 'mecanico123', 
-        rol: 'mecanico' 
+        usuario: 'mecanico',
+        password: 'mecanico123',
+        rol: 'mecanico'
       },
-      { 
-        nombre: 'Ana', 
+      {
+        nombre: 'Ana',
         apellido: 'García',
         email: 'ana.garcia@email.com',
         telefono: '3005555555',
-        usuario: 'ana', 
-        password: 'ana123', 
-        rol: 'cliente' 
+        direccion: 'Carrera 10 #20-30, Medellín',
+        documento_identidad: 'CC100000002',
+        tipo_documento: 'CC',
+        usuario: 'ana',
+        password: 'ana123',
+        rol: 'cliente'
       }
     ];
 
@@ -300,35 +304,34 @@ async function migrate() {
       if (usuarioExists.rows.length === 0) {
         const hashedPassword = await bcrypt.hash(usuario.password, 10);
         await client.query(
-          'INSERT INTO usuarios (nombre, apellido, email, telefono, usuario, password, rol) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-          [usuario.nombre, usuario.apellido, usuario.email, usuario.telefono, usuario.usuario, hashedPassword, usuario.rol]
+          `INSERT INTO usuarios (
+            nombre, apellido, email, telefono, direccion,
+            documento_identidad, tipo_documento, usuario, password, rol
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          [
+            usuario.nombre,
+            usuario.apellido,
+            usuario.email,
+            usuario.telefono,
+            usuario.direccion || null,
+            usuario.documento_identidad || null,
+            usuario.tipo_documento || null,
+            usuario.usuario,
+            hashedPassword,
+            usuario.rol
+          ]
         );
         console.log(`✓ Usuario ${usuario.usuario} creado (password: ${usuario.password})`);
       }
     }
 
-    // Insertar datos de ejemplo en clientes
-    const clientesExists = await client.query('SELECT COUNT(*) FROM clientes');
-    if (parseInt(clientesExists.rows[0].count) === 0) {
-      // Obtener IDs de usuarios clientes
-      const usuariosClientes = await client.query("SELECT id FROM usuarios WHERE rol = 'cliente'");
-      
-      for (const usuario of usuariosClientes.rows) {
-        await client.query(`
-          INSERT INTO clientes (usuario_id, direccion, documento_identidad, tipo_documento) VALUES 
-          ($1, 'Calle 123 #45-67, Bogotá', $2, 'CC')
-        `, [usuario.id, `CC${usuario.id}${Math.floor(Math.random() * 1000)}`]);
-      }
-      console.log('✓ Datos de ejemplo insertados en clientes');
-    }
-
     // Insertar datos de ejemplo en vehículos
     const vehiculosExists = await client.query('SELECT COUNT(*) FROM vehiculos');
     if (parseInt(vehiculosExists.rows[0].count) === 0) {
-      const clientes = await client.query('SELECT id FROM clientes LIMIT 2');
-      
+      const clientes = await client.query("SELECT id FROM usuarios WHERE rol = 'cliente' LIMIT 2");
+
       await client.query(`
-        INSERT INTO vehiculos (cliente_id, marca, modelo, año, placa, color, kilometraje, tipo_combustible) VALUES 
+        INSERT INTO vehiculos (cliente_id, marca, modelo, año, placa, color, kilometraje, tipo_combustible) VALUES
         ($1, 'Toyota', 'Corolla', 2020, 'ABC123', 'Blanco', 45000, 'Gasolina'),
         ($2, 'Ford', 'Fiesta', 2019, 'XYZ789', 'Azul', 38000, 'Gasolina'),
         ($1, 'Honda', 'Civic', 2021, 'DEF456', 'Negro', 25000, 'Gasolina')
@@ -368,11 +371,11 @@ async function migrate() {
     // Insertar datos de ejemplo en citas
     const citasExists = await client.query('SELECT COUNT(*) FROM citas');
     if (parseInt(citasExists.rows[0].count) === 0) {
-      const clientes = await client.query('SELECT id FROM clientes LIMIT 2');
+      const clientes = await client.query("SELECT id FROM usuarios WHERE rol = 'cliente' LIMIT 2");
       const vehiculos = await client.query('SELECT id FROM vehiculos LIMIT 2');
       const servicios = await client.query('SELECT id FROM servicios LIMIT 3');
       const mecanico = await client.query("SELECT id FROM usuarios WHERE rol = 'mecanico' LIMIT 1");
-      
+
       if (clientes.rows.length > 0 && vehiculos.rows.length > 0 && servicios.rows.length > 0 && mecanico.rows.length > 0) {
         await client.query(`
           INSERT INTO citas (cliente_id, vehiculo_id, servicio_id, mecanico_id, fecha_cita, hora_inicio, estado, costo_total) VALUES 
