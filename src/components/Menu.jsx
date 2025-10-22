@@ -103,10 +103,10 @@ function Menu() {
                 {user.rol === 'jefe_taller' && (
                   <>
                     <NavLink
-                      to="/clientes"
+                      to="/usuarios"
                       style={({ isActive }) => (isActive ? { ...linkStyle, ...activeStyle } : linkStyle)}
                     >
-                      👥 Clientes
+                      👥 usuarios
                     </NavLink>
                     <NavLink
                       to="/vehiculos"

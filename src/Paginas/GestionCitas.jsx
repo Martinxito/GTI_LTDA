@@ -5,11 +5,10 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
-import { citasService, clientesService, vehiculosService, serviciosService, usuariosService } from "../Servicios/api";
+import { citasService, vehiculosService, serviciosService, usuariosService } from "../Servicios/api";
 
 function GestionCitas() {
   const [citas, setCitas] = useState([]);
-  const [clientes, setClientes] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
@@ -30,10 +29,9 @@ function GestionCitas() {
 
   useEffect(() => {
     loadCitas();
-    loadClientes();
+    loadUsuarios();
     loadVehiculos();
     loadServicios();
-    loadUsuarios();
   }, []);
 
   const loadCitas = async () => {
@@ -49,12 +47,12 @@ function GestionCitas() {
     }
   };
 
-  const loadClientes = async () => {
+  const loadUsuarios = async () => {
     try {
-      const data = await clientesService.getAll();
-      setClientes(data);
+      const data = await usuariosService.getAll();
+      setUsuarios(data);
     } catch (error) {
-      console.error("Error al cargar clientes:", error);
+      console.error("Error al cargar usuarios:", error);
     }
   };
 
@@ -73,15 +71,6 @@ function GestionCitas() {
       setServicios(data);
     } catch (error) {
       console.error("Error al cargar servicios:", error);
-    }
-  };
-
-  const loadUsuarios = async () => {
-    try {
-      const data = await usuariosService.getAll();
-      setUsuarios(data);
-    } catch (error) {
-      console.error("Error al cargar usuarios:", error);
     }
   };
 
@@ -133,9 +122,9 @@ function GestionCitas() {
     }
   };
 
-  const getClienteNombre = (clienteId) => {
-    const cliente = clientes.find(c => c.id === clienteId);
-    return cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A";
+  const getUsuarioNombre = (usuarioId) => {
+    const usuario = usuario.find(c => c.id === usuarioId);
+    return usuario ? `${usuario.nombre} ${usuario.apellido}` : "N/A";
   };
 
   const getVehiculoInfo = (vehiculoId) => {
@@ -172,9 +161,9 @@ function GestionCitas() {
       render: (cita) => cita.fecha_hora ? new Date(cita.fecha_hora).toLocaleString('es-ES') : 'N/A'
     },
     {
-      key: "cliente_nombre",
-      label: "Cliente",
-      render: (cita) => getClienteNombre(cita.cliente_id)
+      key: "usuario_nombre",
+      label: "Usuario",
+      render: (cita) => getUsuarioNombre(cita.cliente_id)
     },
     {
       key: "vehiculo_info",
@@ -261,7 +250,7 @@ function GestionCitas() {
                     color: "#1e293b",
                     marginBottom: "0.5rem"
                   }}>
-                    Cliente
+                    Usuario
                   </label>
                   <select
                     value={formData.cliente_id}
@@ -277,10 +266,10 @@ function GestionCitas() {
                     }}
                     required
                   >
-                    <option value="">Seleccionar cliente</option>
-                    {clientes.map(cliente => (
-                      <option key={cliente.id} value={cliente.id}>
-                        {cliente.nombre} {cliente.apellido}
+                    <option value="">Seleccionar usuario</option>
+                    {usuarios.map(usuario => (
+                      <option key={usuario.id} value={usuario.id}>
+                        {usuario.nombre} {usuario.apellido}
                       </option>
                     ))}
                   </select>

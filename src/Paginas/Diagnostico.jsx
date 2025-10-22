@@ -15,7 +15,7 @@ function Diagnostico() {
 
     try {
       // Probar servicios API
-      const { clientesService, vehiculosService, serviciosService, citasService } = await import("../Servicios/api");
+      const { usuariosService, vehiculosService, serviciosService, citasService } = await import("../Servicios/api");
       
       // Probar autenticación
       try {
@@ -25,12 +25,12 @@ function Diagnostico() {
         resultados.auth = `❌ Error auth: ${error.message}`;
       }
 
-      // Probar clientes
+      // Probar usuarios
       try {
-        const clientes = await clientesService.getAll();
-        resultados.clientes = `✅ Clientes: ${Array.isArray(clientes) ? clientes.length : 'No es array'}`;
+        const usuarios = await usuariosService.getAll();
+        resultados.usuarios = `✅ Usuarios: ${Array.isArray(usuarios) ? usuarios.length : 'No es array'}`;
       } catch (error) {
-        resultados.clientes = `❌ Error clientes: ${error.message}`;
+        resultados.usuarios = `❌ Error usuarios: ${error.message}`;
       }
 
       // Probar vehículos

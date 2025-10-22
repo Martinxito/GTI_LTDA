@@ -5,13 +5,13 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
-import { vehiculosService, clientesService } from "../Servicios/api";
+import { vehiculosService, usuariosService } from "../Servicios/api";
 import { AuthContext } from "../context/AuthContext"; // Importar el contexto de autenticación
 
 function GestionVehiculos() {
   const { user } = useContext(AuthContext); // Obtener el usuario y su rol
   const [vehiculos, setVehiculos] = useState([]);
-  const [clientes, setClientes] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -29,7 +29,7 @@ function GestionVehiculos() {
 
   useEffect(() => {
     loadVehiculos();
-    loadClientes();
+    loadUsuarios();
   }, []);
 
   const loadVehiculos = async () => {
@@ -52,12 +52,12 @@ function GestionVehiculos() {
     }
   };
 
-  const loadClientes = async () => {
+  const loadUsuarios = async () => {
     try {
-      const data = await clientesService.getAll();
-      setClientes(data);
+      const data = await usuariosService.getAll();
+      setUsuarios(data);
     } catch (error) {
-      console.error("Error al cargar clientes:", error);
+      console.error("Error al cargar usuarios:", error);
     }
   };
 
@@ -109,9 +109,9 @@ function GestionVehiculos() {
     }
   };
 
-  const getClienteNombre = (clienteId) => {
-    const cliente = clientes.find((c) => c.id === clienteId);
-    return cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A";
+  const getUsuarioNombre = (usuarioId) => {
+    const usuario = usuarioss.find((c) => c.id === usuarioId);
+    return usuario ? `${usuario.nombre} ${usuario.apellido}` : "N/A";
   };
 
   const columns = [
@@ -121,9 +121,9 @@ function GestionVehiculos() {
     { key: "placa", label: "Placa" },
     { key: "color", label: "Color" },
     {
-      key: "cliente_nombre",
+      key: "usuario_nombre",
       label: "Propietario",
-      render: (vehiculo) => getClienteNombre(vehiculo.cliente_id)
+      render: (vehiculo) => getUsuarioNombre(vehiculo.cliente_id)
     },
     {
       key: "actions",
@@ -278,10 +278,10 @@ function GestionVehiculos() {
                     }}
                     required
                   >
-                    <option value="">Seleccionar cliente</option>
-                    {clientes.map((cliente) => (
-                      <option key={cliente.id} value={cliente.id}>
-                        {cliente.nombre} {cliente.apellido}
+                    <option value="">Seleccionar usuario</option>
+                    {usuarios.map((usuario) => (
+                      <option key={usuario.id} value={usuario.id}>
+                        {usuario.nombre} {usuario.apellido}
                       </option>
                     ))}
                   </select>

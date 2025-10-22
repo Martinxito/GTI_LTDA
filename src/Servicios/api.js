@@ -263,6 +263,12 @@ export const usuariosService = {
   async getEstadisticas() {
     return await apiRequest("/usuarios/estadisticas", { method: "GET" });
   },
+  async getVehiculos(usuarioId) {
+    return await apiRequest(`/usuarios/${usuarioId}/vehiculos`, { method: "GET" });
+  },
+  async getCitas(usuarioId) {
+    return await apiRequest(`/usuarios/${usuarioId}/citas`, { method: "GET" });
+  },
 };
 
 // Función para verificar si el token es válido

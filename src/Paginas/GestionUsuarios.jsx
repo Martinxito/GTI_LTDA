@@ -5,15 +5,15 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
-import { clientesService } from "../Servicios/api";
+import { usuariosService } from "../Servicios/api";
 
-function GestionClientes() {
-  const [clientes, setClientes] = useState([]);
+function GestionUsuarios() {
+  const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingCliente, setEditingCliente] = useState(null);
+  const [editingUsuario, setEditingUsuario] = useState(null);
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -24,17 +24,17 @@ function GestionClientes() {
   });
 
   useEffect(() => {
-    loadClientes();
+    loadUsuario();
   }, []);
 
-  const loadClientes = async () => {
+  const loadUsuario = async () => {
     try {
       setLoading(true);
-      const data = await clientesService.getAll();
-      setClientes(Array.isArray(data) ? data : []);
+      const data = await usuariosService.getAll();
+      setUsuarios(Array.isArray(data) ? data : []);
     } catch (error) {
-      setError("Error al cargar clientes: " + error.message);
-      setClientes([]);
+      setError("Error al cargar usuarios: " + error.message);
+      setUsuarios([]);
     } finally {
       setLoading(false);
     }
@@ -46,43 +46,43 @@ function GestionClientes() {
     setSuccess("");
 
     try {
-      if (editingCliente) {
-        await clientesService.update(editingCliente.id, formData);
-        setSuccess("Cliente actualizado correctamente");
+      if (editingUsuario) {
+        await usuariosService.update(editingUsuario.id, formData);
+        setSuccess("Usuario actualizado correctamente");
       } else {
-        await clientesService.create(formData);
-        setSuccess("Cliente creado correctamente");
+        await usuariosService.create(formData);
+        setSuccess("Usuario creado correctamente");
       }
       
       setShowForm(false);
-      setEditingCliente(null);
+      setEditingUsuario(null);
       setFormData({ nombre: "", apellido: "", email: "", telefono: "", direccion: "" });
-      loadClientes();
+      loadUsuarios();
     } catch (error) {
-      setError("Error al guardar cliente: " + error.message);
+      setError("Error al guardar usuario: " + error.message);
     }
   };
 
-  const handleEdit = (cliente) => {
-    setEditingCliente(cliente);
+  const handleEdit = (usuario) => {
+    setEditingUsuario(usuario);
     setFormData({
-      nombre: cliente.nombre || "",
-      apellido: cliente.apellido || "",
-      email: cliente.email || "",
-      telefono: cliente.telefono || "",
-      direccion: cliente.direccion || ""
+      nombre: usuario.nombre || "",
+      apellido: usuario.apellido || "",
+      email: usuario.email || "",
+      telefono: usuario.telefono || "",
+      direccion: usuario.direccion || ""
     });
     setShowForm(true);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este cliente?")) {
+    if (window.confirm("¿Estás seguro de que quieres eliminar este usuario?")) {
       try {
-        await clientesService.delete(id);
-        setSuccess("Cliente eliminado correctamente");
-        loadClientes();
+        await usuariosService.delete(id);
+        setSuccess("usuario eliminado correctamente");
+        loadUsuarios();
       } catch (error) {
-        setError("Error al eliminar cliente: " + error.message);
+        setError("Error al eliminar usuario: " + error.message);
       }
     }
   };
@@ -96,19 +96,19 @@ function GestionClientes() {
     {
       key: "actions",
       label: "Acciones",
-      render: (cliente) => (
+      render: (usuario) => (
         <div style={{ display: "flex", gap: "0.5rem" }}>
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => handleEdit(cliente)}
+            onClick={() => handleEdit(usuario)}
           >
             ✏️ Editar
           </Button>
           <Button
             variant="danger"
             size="sm"
-            onClick={() => handleDelete(cliente.id)}
+            onClick={() => handleDelete(usuario.id)}
           >
             🗑️ Eliminar
           </Button>
@@ -124,16 +124,16 @@ function GestionClientes() {
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
           <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", margin: 0 }}>
-            👥 Gestión de Clientes
+            👥 Gestión de Usuarios
           </h1>
           <Button
             onClick={() => {
               setShowForm(true);
-              setEditingCliente(null);
+              setEditingUsuario(null);
               setFormData({ nombre: "", apellido: "", email: "", telefono: "", direccion: "" });
             }}
           >
-            ➕ Nuevo Cliente
+            ➕ Nuevo Usuario
           </Button>
         </div>
 
@@ -141,7 +141,7 @@ function GestionClientes() {
         {success && <Alert type="success" onClose={() => setSuccess("")}>{success}</Alert>}
 
         {showForm && (
-          <Card title={editingCliente ? "Editar Cliente" : "Nuevo Cliente"} className="mb-6">
+          <Card title={editingUsuario ? "Editar Usuario" : "Nuevo Usuario"} className="mb-6">
             <form onSubmit={handleSubmit}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1rem" }}>
                 <Input
@@ -179,14 +179,14 @@ function GestionClientes() {
               
               <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                 <Button type="submit">
-                  {editingCliente ? "💾 Actualizar" : "➕ Crear"}
+                  {editingUsuario ? "💾 Actualizar" : "➕ Crear"}
                 </Button>
                 <Button
                   type="button"
                   variant="secondary"
                   onClick={() => {
                     setShowForm(false);
-                    setEditingCliente(null);
+                    setEditingUsuario(null);
                     setFormData({ nombre: "", apellido: "", email: "", telefono: "", direccion: "" });
                   }}
                 >
@@ -197,12 +197,12 @@ function GestionClientes() {
           </Card>
         )}
 
-        <Card title="Lista de Clientes">
+        <Card title="Lista de Usuarios">
           <Table
-            data={clientes}
+            data={usuarios}
             columns={columns}
             loading={loading}
-            emptyMessage="No hay clientes registrados"
+            emptyMessage="No hay Usuarios registrados"
           />
         </Card>
       </div>
@@ -210,4 +210,4 @@ function GestionClientes() {
   );
 }
 
-export default GestionClientes;
+export default GestionUsuarios;

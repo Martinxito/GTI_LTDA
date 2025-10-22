@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import RutaPrivada from "./components/RutaPrivada";
@@ -6,7 +6,7 @@ import Login from "./Paginas/Login";
 import Dashboard from "./Paginas/Dashboard";
 import DashboardMecanico from "./Paginas/DashboardMecanico";
 import DashboardCliente from "./Paginas/DashboardCliente";
-import GestionClientes from "./Paginas/GestionClientes";
+import GestionUsuarios from "./Paginas/GestionUsuarios";
 import GestionVehiculos from "./Paginas/GestionVehiculos";
 import GestionServicios from "./Paginas/GestionServicios";
 import GestionCitas from "./Paginas/GestionCitas";
@@ -56,15 +56,16 @@ function App() {
               }
             />
             
-            {/* Gestión de Clientes - Solo Jefe de Taller */}
+            {/* Gestión de Usuarios - Solo Jefe de Taller */}
             <Route
-              path="/clientes"
+              path="/usuarios"
               element={
                 <RutaPrivada rol="jefe_taller">
-                  <GestionClientes />
+                  <GestionUsuarios />
                 </RutaPrivada>
               }
             />
+            <Route path="/clientes" element={<Navigate to="/usuarios" replace />} />
             
             {/* Gestión de Vehículos - Jefe de Taller y Cliente */}
             <Route
