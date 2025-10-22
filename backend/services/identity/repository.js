@@ -163,6 +163,48 @@ async function insertUser({ nombre, usuario, password, rol }) {
   }
 }
 
+async function insertManagedUser(userData) {
+  const hasRequiredColumns = await ensureUserTableSchema();
+  const values = [
+    userData.nombre,
+    userData.apellido || null,
+    userData.email || null,
+    userData.telefono || null,
+    userData.direccion || null,
+    userData.usuario,
+    userData.password,
+    userData.rol,
+    userData.activo ?? true
+  ];
+
+  const returningColumns = (hasRequiredColumns && !useFlexibleUserQuery)
+    ? REQUIRED_USER_COLUMNS.join(', ')
+    : '*';
+
+  try {
+    const [rows] = await db.query(
+      `INSERT INTO usuarios (nombre, apellido, email, telefono, direccion, usuario, password, rol, activo)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING ${returningColumns}`,
+      values
+    );
+
+    return normalizeUserRow(rows[0]);
+  } catch (error) {
+    if (isConnectionError(error)) {
+      console.warn('[identity.repository] Base de datos no disponible, usando almacenamiento en memoria');
+      return fallbackStore.insertUser(userData);
+    }
+    if (error.code === POSTGRES_UNDEFINED_COLUMN_CODE || error.code === POSTGRES_UNDEFINED_TABLE_CODE) {
+      useFlexibleUserQuery = true;
+      userTableHasRequiredColumns = false;
+      console.warn('[identity.repository] Esquema de usuarios incompleto detectado al crear usuario gestionado. Usando almacenamiento temporal.');
+      return fallbackStore.insertUser(userData);
+    }
+    throw error;
+  }
+}
+
 async function findByUsuario(usuario) {
   try {
     const [rows] = await db.query('SELECT * FROM usuarios WHERE usuario = $1', [usuario]);
@@ -177,6 +219,83 @@ async function findByUsuario(usuario) {
     }
     throw error;
   }
+}
+
+async function findById(id) {
+  try {
+    const [rows] = await db.query('SELECT * FROM usuarios WHERE id = $1', [id]);
+    const user = rows[0];
+    return user ? normalizeUserRow(user) : null;
+  } catch (error) {
+    if (isConnectionError(error)) {
+      return fallbackStore.findById(id);
+    }
+    if (error.code === POSTGRES_UNDEFINED_TABLE_CODE) {
+      console.warn('[identity.repository] Tabla usuarios no disponible. Usando almacenamiento temporal para findById.');
+      return fallbackStore.findById(id);
+    }
+    throw error;
+  }
+}
+
+async function updateUser(id, updates) {
+  const hasRequiredColumns = await ensureUserTableSchema();
+
+  const allowedFields = ['nombre', 'apellido', 'email', 'telefono', 'direccion', 'usuario', 'rol', 'activo'];
+  const setStatements = [];
+  const values = [];
+  let index = 1;
+
+  for (const field of allowedFields) {
+    if (Object.prototype.hasOwnProperty.call(updates, field)) {
+      setStatements.push(`${field} = $${index++}`);
+      values.push(updates[field]);
+    }
+  }
+
+  if (setStatements.length === 0) {
+    return findById(id);
+  }
+
+  const returningColumns = (hasRequiredColumns && !useFlexibleUserQuery)
+    ? REQUIRED_USER_COLUMNS.join(', ')
+    : '*';
+
+  const query = `
+    UPDATE usuarios
+    SET ${setStatements.join(', ')}
+    WHERE id = $${index}
+    RETURNING ${returningColumns}
+  `;
+
+  values.push(id);
+
+  try {
+    const [rows] = await db.query(query, values);
+    const user = rows[0];
+    return user ? normalizeUserRow(user) : null;
+  } catch (error) {
+    if (isConnectionError(error)) {
+      const fallbackResult = fallbackStore.updateUser(id, updates);
+      return fallbackResult;
+    }
+    if (error.code === POSTGRES_UNDEFINED_TABLE_CODE) {
+      console.warn('[identity.repository] Tabla usuarios no disponible. Usando almacenamiento temporal para updateUser.');
+      return fallbackStore.updateUser(id, updates);
+    }
+    if (error.code === POSTGRES_UNDEFINED_COLUMN_CODE) {
+      console.warn('[identity.repository] Columna faltante al actualizar usuario. Usando almacenamiento temporal para updateUser.');
+      useFlexibleUserQuery = true;
+      userTableHasRequiredColumns = false;
+      return fallbackStore.updateUser(id, updates);
+    }
+    throw error;
+  }
+}
+
+async function deactivateUser(id) {
+  const result = await updateUser(id, { activo: false });
+  return result;
 }
 
 async function findAllUsers() {
@@ -223,6 +342,10 @@ function normalizeUserRow(row) {
 
 module.exports = {
   insertUser,
+  insertManagedUser,
   findByUsuario,
+  findById,
+  updateUser,
+  deactivateUser,
   findAllUsers
 };

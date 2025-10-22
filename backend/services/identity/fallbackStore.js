@@ -26,15 +26,15 @@ function normalizeUserPayload(payload) {
   };
 }
 
-function ensureUnique(usuario, email) {
+function ensureUnique(usuario, email, { ignoreUserId = null } = {}) {
   const lowerUsuario = usuario.toLowerCase();
-  if (fallbackUsers.some((user) => user.usuario.toLowerCase() === lowerUsuario)) {
+  if (fallbackUsers.some((user) => user.id !== ignoreUserId && user.usuario.toLowerCase() === lowerUsuario)) {
     const error = new Error('El usuario ya está registrado');
     error.code = 'DUPLICATE_USER';
     throw error;
   }
 
-  if (email && fallbackUsers.some((user) => user.email && user.email.toLowerCase() === email.toLowerCase())) {
+  if (email && fallbackUsers.some((user) => user.id !== ignoreUserId && user.email && user.email.toLowerCase() === email.toLowerCase())) {
     const error = new Error('El email ya está registrado');
     error.code = 'DUPLICATE_EMAIL';
     throw error;
@@ -68,6 +68,42 @@ function findByUsuario(usuario) {
   return user ? cloneUser(user) : null;
 }
 
+function findById(id) {
+  const numericId = Number(id);
+  const user = fallbackUsers.find((u) => u.id === numericId);
+  return user ? cloneUser(user) : null;
+}
+
+function updateUser(id, payload) {
+  const numericId = Number(id);
+  const index = fallbackUsers.findIndex((u) => u.id === numericId);
+  if (index === -1) {
+    return null;
+  }
+
+  const current = fallbackUsers[index];
+  const updatedUser = {
+    ...current,
+    ...payload
+  };
+
+  ensureUnique(updatedUser.usuario, updatedUser.email, { ignoreUserId: numericId });
+
+  fallbackUsers[index] = updatedUser;
+  return sanitizeUser(updatedUser);
+}
+
+function deactivateUser(id) {
+  const numericId = Number(id);
+  const user = fallbackUsers.find((u) => u.id === numericId);
+  if (!user) {
+    return null;
+  }
+
+  user.activo = false;
+  return sanitizeUser(user);
+}
+
 function findAllUsers() {
   return fallbackUsers.map((user) => sanitizeUser(user));
 }
@@ -95,5 +131,8 @@ seedDefaultUsers();
 module.exports = {
   insertUser,
   findByUsuario,
+  findById,
+  updateUser,
+  deactivateUser,
   findAllUsers
 };
