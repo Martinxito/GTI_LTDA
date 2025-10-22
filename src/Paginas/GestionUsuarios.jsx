@@ -24,10 +24,10 @@ function GestionUsuarios() {
   });
 
   useEffect(() => {
-    loadUsuario();
+    loadUsuarios();
   }, []);
 
-  const loadUsuario = async () => {
+  const loadUsuarios = async () => {
     try {
       setLoading(true);
       const data = await usuariosService.getAll();
@@ -79,7 +79,7 @@ function GestionUsuarios() {
     if (window.confirm("¿Estás seguro de que quieres eliminar este usuario?")) {
       try {
         await usuariosService.delete(id);
-        setSuccess("usuario eliminado correctamente");
+        setSuccess("Usuario eliminado correctamente");
         loadUsuarios();
       } catch (error) {
         setError("Error al eliminar usuario: " + error.message);
