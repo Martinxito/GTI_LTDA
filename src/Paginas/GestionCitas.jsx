@@ -123,7 +123,7 @@ function GestionCitas() {
   };
 
   const getUsuarioNombre = (usuarioId) => {
-    const usuario = usuario.find(c => c.id === usuarioId);
+    const usuario = usuarios.find(c => c.id === usuarioId);
     return usuario ? `${usuario.nombre} ${usuario.apellido}` : "N/A";
   };
 
