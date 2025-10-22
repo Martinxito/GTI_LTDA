@@ -91,18 +91,20 @@ async function insertVehicle(data) {
 async function updateVehicle(id, data) {
   await db.query(
     `UPDATE vehiculos SET
-       marca = $1,
-       modelo = $2,
-       año = $3,
-       placa = $4,
-       color = $5,
-       kilometraje = $6,
-       tipo_combustible = $7,
-       numero_motor = $8,
-       numero_chasis = $9,
-       observaciones = $10
-     WHERE id = $11 AND activo = true`,
+      cliente_id = $1,
+      marca = $2,
+      modelo = $3,
+      año = $4,
+      placa = $5,
+      color = $6,
+      kilometraje = $7,
+      tipo_combustible = $8,
+      numero_motor = $9,
+      numero_chasis = $10,
+      observaciones = $11
+    WHERE id = $12 AND activo = true`,
     [
+      data.cliente_id,
       data.marca,
       data.modelo,
       data.año,

@@ -105,7 +105,9 @@ function deactivateUser(id) {
 }
 
 function findAllUsers() {
-  return fallbackUsers.map((user) => sanitizeUser(user));
+  return fallbackUsers
+    .filter((user) => user.activo !== false)
+    .map((user) => sanitizeUser(user));
 }
 
 function seedDefaultUsers() {
