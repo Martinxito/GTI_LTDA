@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -27,12 +27,7 @@ function GestionVehiculos() {
     cliente_id: ""
   });
 
-  useEffect(() => {
-    loadVehiculos();
-    loadUsuarios();
-  }, []);
-
-  const loadVehiculos = async () => {
+  const loadVehiculos = useCallback(async () => {
     try {
       setLoading(true);
       const data = await vehiculosService.getAll();
@@ -50,16 +45,21 @@ function GestionVehiculos() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  const loadUsuarios = async () => {
+  const loadUsuarios = useCallback(async () => {
     try {
       const data = await usuariosService.getAll();
       setUsuarios(data);
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadVehiculos();
+    loadUsuarios();
+  }, [loadVehiculos, loadUsuarios]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -110,7 +110,7 @@ function GestionVehiculos() {
   };
 
   const getUsuarioNombre = (usuarioId) => {
-    const usuario = usuarioss.find((c) => c.id === usuarioId);
+    const usuario = usuarios.find((c) => c.id === usuarioId);
     return usuario ? `${usuario.nombre} ${usuario.apellido}` : "N/A";
   };
 
