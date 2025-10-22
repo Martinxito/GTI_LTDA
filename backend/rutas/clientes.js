@@ -10,19 +10,22 @@ router.use(verificarToken);
 router.get('/', async (req, res) => {
   try {
     const [rows] = await db.query(`
-      SELECT 
-        c.*,
+      SELECT
+        u.id,
         u.nombre,
         u.apellido,
         u.email,
         u.telefono,
+        u.direccion,
+        u.fecha_nacimiento,
+        u.documento_identidad,
+        u.tipo_documento,
         u.activo as usuario_activo,
         COUNT(v.id) as total_vehiculos
-      FROM clientes c
-      JOIN usuarios u ON c.usuario_id = u.id
-      LEFT JOIN vehiculos v ON c.id = v.cliente_id AND v.activo = true
+      FROM usuarios u
+      LEFT JOIN vehiculos v ON v.cliente_id = u.id AND v.activo = true
       WHERE u.rol = 'cliente' AND u.activo = true
-      GROUP BY c.id, u.id
+      GROUP BY u.id
       ORDER BY u.nombre, u.apellido
     `);
     res.json(rows);
@@ -37,16 +40,19 @@ router.get('/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const [rows] = await db.query(`
-      SELECT 
-        c.*,
+      SELECT
+        u.id,
         u.nombre,
         u.apellido,
         u.email,
         u.telefono,
+        u.direccion,
+        u.fecha_nacimiento,
+        u.documento_identidad,
+        u.tipo_documento,
         u.activo as usuario_activo
-      FROM clientes c
-      JOIN usuarios u ON c.usuario_id = u.id
-      WHERE c.id = $1 AND u.rol = 'cliente'
+      FROM usuarios u
+      WHERE u.id = $1 AND u.rol = 'cliente'
     `, [id]);
     
     if (rows.length === 0) {
@@ -82,24 +88,29 @@ router.post('/', async (req, res) => {
     const bcrypt = require('bcryptjs');
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear usuario primero
     const [usuarioResult] = await db.query(`
-      INSERT INTO usuarios (nombre, apellido, email, telefono, usuario, password, rol) 
-      VALUES ($1, $2, $3, $4, $5, $6, 'cliente') 
+      INSERT INTO usuarios (
+        nombre, apellido, email, telefono, direccion, fecha_nacimiento,
+        documento_identidad, tipo_documento, usuario, password, rol
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'cliente')
       RETURNING id
-    `, [nombre, apellido, email, telefono, email, hashedPassword]);
+    `, [
+      nombre,
+      apellido,
+      email,
+      telefono,
+      direccion,
+      fecha_nacimiento,
+      documento_identidad,
+      tipo_documento || 'CC',
+      email,
+      hashedPassword
+    ]);
 
-    // Crear cliente
-    const [clienteResult] = await db.query(`
-      INSERT INTO clientes (usuario_id, direccion, fecha_nacimiento, documento_identidad, tipo_documento) 
-      VALUES ($1, $2, $3, $4, $5) 
-      RETURNING id
-    `, [usuarioResult.rows[0].id, direccion, fecha_nacimiento, documento_identidad, tipo_documento || 'CC']);
-
-    res.json({ 
-      id: clienteResult.rows[0].id, 
-      usuario_id: usuarioResult.rows[0].id,
-      mensaje: 'Cliente creado exitosamente' 
+    res.json({
+      id: usuarioResult.rows[0].id,
+      mensaje: 'Cliente creado exitosamente'
     });
   } catch (error) {
     console.error(error);
@@ -126,28 +137,37 @@ router.put('/:id', async (req, res) => {
   } = req.body;
 
   try {
-    // Obtener el usuario_id del cliente
-    const [cliente] = await db.query('SELECT usuario_id FROM clientes WHERE id = $1', [id]);
-    
+    const [cliente] = await db.query(
+      "SELECT id FROM usuarios WHERE id = $1 AND rol = 'cliente'",
+      [id]
+    );
+
     if (cliente.rows.length === 0) {
       return res.status(404).json({ error: 'Cliente no encontrado' });
     }
 
-    const usuarioId = cliente.rows[0].usuario_id;
-
-    // Actualizar usuario
     await db.query(`
-      UPDATE usuarios SET 
-        nombre = $1, apellido = $2, email = $3, telefono = $4
-      WHERE id = $5
-    `, [nombre, apellido, email, telefono, usuarioId]);
-
-    // Actualizar cliente
-    await db.query(`
-      UPDATE clientes SET 
-        direccion = $1, fecha_nacimiento = $2, documento_identidad = $3, tipo_documento = $4
-      WHERE id = $5
-    `, [direccion, fecha_nacimiento, documento_identidad, tipo_documento, id]);
+      UPDATE usuarios SET
+        nombre = $1,
+        apellido = $2,
+        email = $3,
+        telefono = $4,
+        direccion = $5,
+        fecha_nacimiento = $6,
+        documento_identidad = $7,
+        tipo_documento = $8
+      WHERE id = $9
+    `, [
+      nombre,
+      apellido,
+      email,
+      telefono,
+      direccion,
+      fecha_nacimiento,
+      documento_identidad,
+      tipo_documento || 'CC',
+      id
+    ]);
 
     res.json({ mensaje: 'Cliente actualizado exitosamente' });
   } catch (error) {
@@ -164,17 +184,17 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    // Obtener el usuario_id del cliente
-    const [cliente] = await db.query('SELECT usuario_id FROM clientes WHERE id = $1', [id]);
-    
+    const [cliente] = await db.query(
+      "SELECT id FROM usuarios WHERE id = $1 AND rol = 'cliente'",
+      [id]
+    );
+
     if (cliente.rows.length === 0) {
       return res.status(404).json({ error: 'Cliente no encontrado' });
     }
 
-    const usuarioId = cliente.rows[0].usuario_id;
-
     // Desactivar usuario
-    await db.query('UPDATE usuarios SET activo = false WHERE id = $1', [usuarioId]);
+    await db.query('UPDATE usuarios SET activo = false WHERE id = $1', [id]);
 
     res.json({ mensaje: 'Cliente eliminado exitosamente' });
   } catch (error) {
@@ -230,19 +250,20 @@ router.get('/buscar/:termino', async (req, res) => {
   const { termino } = req.params;
   try {
     const [rows] = await db.query(`
-      SELECT 
-        c.*,
+      SELECT
+        u.id,
         u.nombre,
         u.apellido,
         u.email,
-        u.telefono
-      FROM clientes c
-      JOIN usuarios u ON c.usuario_id = u.id
-      WHERE u.rol = 'cliente' AND u.activo = true 
+        u.telefono,
+        u.direccion,
+        u.documento_identidad
+      FROM usuarios u
+      WHERE u.rol = 'cliente' AND u.activo = true
       AND (
-        LOWER(u.nombre) LIKE LOWER($1) OR 
-        LOWER(u.apellido) LIKE LOWER($1) OR 
-        LOWER(c.documento_identidad) LIKE LOWER($1) OR
+        LOWER(u.nombre) LIKE LOWER($1) OR
+        LOWER(u.apellido) LIKE LOWER($1) OR
+        LOWER(u.documento_identidad) LIKE LOWER($1) OR
         LOWER(u.email) LIKE LOWER($1)
       )
       ORDER BY u.nombre, u.apellido
