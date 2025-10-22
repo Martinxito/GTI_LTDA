@@ -15,7 +15,17 @@ async function findByUsuario(usuario) {
   return rows[0] || null;
 }
 
+const pool = require("../../db");
+
+async function findAllUsers() {
+  const result = await pool.query(
+    "SELECT id, nombre, apellido, email, telefono, direccion, usuario, rol, activo FROM usuarios"
+  );
+  return result.rows;
+}
+
 module.exports = {
   insertUser,
-  findByUsuario
+  findByUsuario,
+  findAllUsers,
 };

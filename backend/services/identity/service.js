@@ -60,7 +60,12 @@ async function authenticateUser(credentials) {
   return { user: safeUser, token };
 }
 
+async function getAllUsers() {
+  return await repository.findAllUsers();
+}
+
 module.exports = {
   registerUser,
-  authenticateUser
+  authenticateUser,
+  getAllUsers
 };
