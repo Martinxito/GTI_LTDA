@@ -14,8 +14,19 @@ const REQUIRED_USER_COLUMNS = [
 ];
 
 const POSTGRES_UNDEFINED_COLUMN_CODE = '42703';
+const POSTGRES_UNDEFINED_TABLE_CODE = '42P01';
+
+const USER_SCHEMA_ALTER_STATEMENTS = {
+  apellido: 'ADD COLUMN IF NOT EXISTS apellido VARCHAR(100)',
+  email: 'ADD COLUMN IF NOT EXISTS email VARCHAR(255)',
+  telefono: 'ADD COLUMN IF NOT EXISTS telefono VARCHAR(20)',
+  direccion: 'ADD COLUMN IF NOT EXISTS direccion TEXT',
+  activo: 'ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT true'
+};
 
 let useFlexibleUserQuery = false;
+let userTableHasRequiredColumns = false;
+let ensureUserSchemaPromise = null;
 
 function isConnectionError(error) {
   if (!error) {
@@ -33,18 +44,119 @@ function isConnectionError(error) {
   return false;
 }
 
+async function ensureUserTableSchema() {
+  if (userTableHasRequiredColumns) {
+    return true;
+  }
+
+  if (!ensureUserSchemaPromise) {
+    ensureUserSchemaPromise = (async () => {
+      try {
+        const [rows] = await db.query(`
+          SELECT column_name
+          FROM information_schema.columns
+          WHERE table_schema = current_schema()
+            AND table_name = 'usuarios'
+        `);
+
+        const existingColumns = new Set(
+          rows.map((row) => row.column_name.toLowerCase())
+        );
+
+        const missingColumns = REQUIRED_USER_COLUMNS.filter(
+          (column) => !existingColumns.has(column.toLowerCase())
+        );
+
+        const alterStatements = [];
+        const createdColumns = [];
+
+        for (const column of missingColumns) {
+          const statement = USER_SCHEMA_ALTER_STATEMENTS[column];
+          if (statement) {
+            alterStatements.push(statement);
+            createdColumns.push(column.toLowerCase());
+          }
+        }
+
+        if (alterStatements.length > 0) {
+          await db.query(
+            `
+              ALTER TABLE usuarios
+              ${alterStatements.join(',\n              ')}
+            `
+          );
+          createdColumns.forEach((column) => existingColumns.add(column));
+          console.info(
+            `[identity.repository] Columnas agregadas automáticamente a usuarios: ${createdColumns.join(', ')}`
+          );
+        }
+
+        const unresolvedColumns = missingColumns.filter(
+          (column) => !USER_SCHEMA_ALTER_STATEMENTS[column]
+        );
+        if (unresolvedColumns.length > 0) {
+          console.warn(
+            `[identity.repository] Columnas faltantes que no se pueden agregar automáticamente: ${unresolvedColumns.join(', ')}`
+          );
+        }
+
+        userTableHasRequiredColumns = REQUIRED_USER_COLUMNS.every((column) =>
+          existingColumns.has(column.toLowerCase())
+        );
+        useFlexibleUserQuery = !userTableHasRequiredColumns;
+        return userTableHasRequiredColumns;
+      } catch (error) {
+        if (error.code === POSTGRES_UNDEFINED_TABLE_CODE) {
+          console.warn(
+            '[identity.repository] La tabla usuarios aún no existe. Usando consulta flexible hasta que las migraciones finalicen.'
+          );
+        } else if (!isConnectionError(error)) {
+          console.error(
+            '[identity.repository] Error al verificar o ajustar el esquema de usuarios:',
+            error
+          );
+        }
+        useFlexibleUserQuery = true;
+        return false;
+      } finally {
+        ensureUserSchemaPromise = null;
+      }
+    })();
+  }
+
+  return ensureUserSchemaPromise;
+}
+
 async function insertUser({ nombre, usuario, password, rol }) {
+  const hasRequiredColumns = await ensureUserTableSchema();
   try {
+    const returningColumns = ['id', 'nombre', 'usuario', 'rol'];
+    if (hasRequiredColumns && !useFlexibleUserQuery) {
+      returningColumns.push('activo');
+    }
+
     const [rows] = await db.query(
       `INSERT INTO usuarios (nombre, usuario, password, rol)
        VALUES ($1, $2, $3, $4)
-       RETURNING id, nombre, usuario, rol, activo`,
+       RETURNING ${returningColumns.join(', ')}`,
       [nombre, usuario, password, rol]
     );
-    return rows[0];
+    const user = rows[0];
+    if (user && !Object.prototype.hasOwnProperty.call(user, 'activo')) {
+      user.activo = true;
+    }
+    return user;
   } catch (error) {
     if (isConnectionError(error)) {
       console.warn('[identity.repository] Base de datos no disponible, usando almacenamiento en memoria');
+      return fallbackStore.insertUser({ nombre, usuario, password, rol });
+    }
+    if (error.code === POSTGRES_UNDEFINED_COLUMN_CODE || error.code === POSTGRES_UNDEFINED_TABLE_CODE) {
+      useFlexibleUserQuery = true;
+      userTableHasRequiredColumns = false;
+      console.warn(
+        '[identity.repository] Esquema de usuarios incompleto detectado al insertar. Usando almacenamiento temporal.'
+      );
       return fallbackStore.insertUser({ nombre, usuario, password, rol });
     }
     throw error;
@@ -59,13 +171,19 @@ async function findByUsuario(usuario) {
     if (isConnectionError(error)) {
       return fallbackStore.findByUsuario(usuario);
     }
+    if (error.code === POSTGRES_UNDEFINED_TABLE_CODE) {
+      console.warn('[identity.repository] Tabla usuarios no disponible. Usando almacenamiento temporal para la consulta.');
+      return fallbackStore.findByUsuario(usuario);
+    }
     throw error;
   }
 }
 
 async function findAllUsers() {
   try {
-    if (useFlexibleUserQuery) {
+    const hasRequiredColumns = await ensureUserTableSchema();
+
+    if (useFlexibleUserQuery || !hasRequiredColumns) {
       const [rows] = await db.query('SELECT * FROM usuarios');
       return rows.map((row) => normalizeUserRow(row));
     }
@@ -78,12 +196,17 @@ async function findAllUsers() {
     if (isConnectionError(error)) {
       return fallbackStore.findAllUsers();
     }
+    if (error.code === POSTGRES_UNDEFINED_TABLE_CODE) {
+      console.warn('[identity.repository] Tabla usuarios no disponible. Usando almacenamiento temporal.');
+      return fallbackStore.findAllUsers();
+    }
     if (error.code === POSTGRES_UNDEFINED_COLUMN_CODE) {
       console.warn(
         `[identity.repository] Columna faltante en la tabla usuarios detectada (${error.message}). ` +
           'Usando consulta flexible para continuar mientras se ejecutan las migraciones.'
       );
       useFlexibleUserQuery = true;
+      userTableHasRequiredColumns = false;
       const [rows] = await db.query('SELECT * FROM usuarios');
       return rows.map((row) => normalizeUserRow(row));
     }
