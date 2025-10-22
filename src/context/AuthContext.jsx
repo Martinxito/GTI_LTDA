@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { authService, verifyToken, clearAuth } from "../Servicios/api";
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -80,6 +80,8 @@ export function AuthProvider({ children }) {
       setLoading(false);
     }
   };
+
+  console.log("Usuario actual:", user);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, register, loading }}>

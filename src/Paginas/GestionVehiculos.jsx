@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -6,8 +6,10 @@ import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
 import { vehiculosService, clientesService } from "../Servicios/api";
+import { AuthContext } from "../context/AuthContext"; // Importar el contexto de autenticación
 
 function GestionVehiculos() {
+  const { user } = useContext(AuthContext); // Obtener el usuario y su rol
   const [vehiculos, setVehiculos] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -34,7 +36,14 @@ function GestionVehiculos() {
     try {
       setLoading(true);
       const data = await vehiculosService.getAll();
-      setVehiculos(Array.isArray(data) ? data : []);
+
+      // Filtrar vehículos según el rol del usuario
+      const filteredVehiculos =
+        user.rol === "Cliente"
+          ? data.filter((vehiculo) => vehiculo.cliente_id === user.id) // Mostrar solo vehículos del cliente
+          : data; // Mostrar todos los vehículos para otros roles
+
+      setVehiculos(Array.isArray(filteredVehiculos) ? filteredVehiculos : []);
     } catch (error) {
       setError("Error al cargar vehículos: " + error.message);
       setVehiculos([]);
@@ -65,7 +74,7 @@ function GestionVehiculos() {
         await vehiculosService.create(formData);
         setSuccess("Vehículo creado correctamente");
       }
-      
+
       setShowForm(false);
       setEditingVehiculo(null);
       setFormData({ marca: "", modelo: "", año: "", placa: "", color: "", cliente_id: "" });
@@ -101,7 +110,7 @@ function GestionVehiculos() {
   };
 
   const getClienteNombre = (clienteId) => {
-    const cliente = clientes.find(c => c.id === clienteId);
+    const cliente = clientes.find((c) => c.id === clienteId);
     return cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A";
   };
 
@@ -119,98 +128,145 @@ function GestionVehiculos() {
     {
       key: "actions",
       label: "Acciones",
-      render: (vehiculo) => (
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleEdit(vehiculo)}
-          >
-            ✏️ Editar
-          </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => handleDelete(vehiculo.id)}
-          >
-            🗑️ Eliminar
-          </Button>
-        </div>
-      )
+      render: (vehiculo) =>
+        user.rol === "Jefe de Taller" && ( // Solo mostrar acciones para el Jefe de Taller
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => handleEdit(vehiculo)}
+            >
+              ✏️ Editar
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => handleDelete(vehiculo.id)}
+            >
+              🗑️ Eliminar
+            </Button>
+          </div>
+        )
     }
   ];
 
   return (
     <div>
       <Menu />
-      
+
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-          <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", margin: 0 }}>
-            🚗 Gestión de Vehículos
-          </h1>
-          <Button
-            onClick={() => {
-              setShowForm(true);
-              setEditingVehiculo(null);
-              setFormData({ marca: "", modelo: "", año: "", placa: "", color: "", cliente_id: "" });
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "2rem"
+          }}
+        >
+          <h1
+            style={{
+              fontSize: "2rem",
+              fontWeight: "700",
+              color: "#1e293b",
+              margin: 0
             }}
           >
-            ➕ Nuevo Vehículo
-          </Button>
+            🚗 Gestión de Vehículos
+          </h1>
+          {user.rol === "Jefe de Taller" && (
+            <Button
+              onClick={() => {
+                setShowForm(true);
+                setEditingVehiculo(null);
+                setFormData({
+                  marca: "",
+                  modelo: "",
+                  año: "",
+                  placa: "",
+                  color: "",
+                  cliente_id: ""
+                });
+              }}
+            >
+              ➕ Nuevo Vehículo
+            </Button>
+          )}
         </div>
 
         {error && <Alert type="error" onClose={() => setError("")}>{error}</Alert>}
         {success && <Alert type="success" onClose={() => setSuccess("")}>{success}</Alert>}
 
         {showForm && (
-          <Card title={editingVehiculo ? "Editar Vehículo" : "Nuevo Vehículo"} className="mb-6">
+          <Card
+            title={editingVehiculo ? "Editar Vehículo" : "Nuevo Vehículo"}
+            className="mb-6"
+          >
             <form onSubmit={handleSubmit}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1rem" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                  gap: "1rem"
+                }}
+              >
                 <Input
                   label="Marca"
                   value={formData.marca}
-                  onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, marca: e.target.value })
+                  }
                   required
                 />
                 <Input
                   label="Modelo"
                   value={formData.modelo}
-                  onChange={(e) => setFormData({ ...formData, modelo: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, modelo: e.target.value })
+                  }
                   required
                 />
                 <Input
                   label="Año"
                   type="number"
                   value={formData.año}
-                  onChange={(e) => setFormData({ ...formData, año: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, año: e.target.value })
+                  }
                   required
                 />
                 <Input
                   label="Placa"
                   value={formData.placa}
-                  onChange={(e) => setFormData({ ...formData, placa: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, placa: e.target.value })
+                  }
                   required
                 />
                 <Input
                   label="Color"
                   value={formData.color}
-                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, color: e.target.value })
+                  }
                   required
                 />
                 <div>
-                  <label style={{
-                    display: "block",
-                    fontSize: "0.875rem",
-                    fontWeight: "600",
-                    color: "#1e293b",
-                    marginBottom: "0.5rem"
-                  }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "0.875rem",
+                      fontWeight: "600",
+                      color: "#1e293b",
+                      marginBottom: "0.5rem"
+                    }}
+                  >
                     Propietario
                   </label>
                   <select
                     value={formData.cliente_id}
-                    onChange={(e) => setFormData({ ...formData, cliente_id: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, cliente_id: e.target.value })
+                    }
                     style={{
                       width: "100%",
                       padding: "0.75rem 1rem",
@@ -223,7 +279,7 @@ function GestionVehiculos() {
                     required
                   >
                     <option value="">Seleccionar cliente</option>
-                    {clientes.map(cliente => (
+                    {clientes.map((cliente) => (
                       <option key={cliente.id} value={cliente.id}>
                         {cliente.nombre} {cliente.apellido}
                       </option>
@@ -231,7 +287,7 @@ function GestionVehiculos() {
                   </select>
                 </div>
               </div>
-              
+
               <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                 <Button type="submit">
                   {editingVehiculo ? "💾 Actualizar" : "➕ Crear"}
@@ -242,7 +298,14 @@ function GestionVehiculos() {
                   onClick={() => {
                     setShowForm(false);
                     setEditingVehiculo(null);
-                    setFormData({ marca: "", modelo: "", año: "", placa: "", color: "", cliente_id: "" });
+                    setFormData({
+                      marca: "",
+                      modelo: "",
+                      año: "",
+                      placa: "",
+                      color: "",
+                      cliente_id: ""
+                    });
                   }}
                 >
                   ❌ Cancelar

@@ -5,13 +5,14 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
-import { citasService, clientesService, vehiculosService, serviciosService } from "../Servicios/api";
+import { citasService, clientesService, vehiculosService, serviciosService, usuariosService } from "../Servicios/api";
 
 function GestionCitas() {
   const [citas, setCitas] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
   const [servicios, setServicios] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -32,6 +33,7 @@ function GestionCitas() {
     loadClientes();
     loadVehiculos();
     loadServicios();
+    loadUsuarios();
   }, []);
 
   const loadCitas = async () => {
@@ -71,6 +73,15 @@ function GestionCitas() {
       setServicios(data);
     } catch (error) {
       console.error("Error al cargar servicios:", error);
+    }
+  };
+
+  const loadUsuarios = async () => {
+    try {
+      const data = await usuariosService.getAll();
+      setUsuarios(data);
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
     }
   };
 

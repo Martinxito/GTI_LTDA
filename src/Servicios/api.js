@@ -81,49 +81,6 @@ export const inventarioService = {
   },
 };
 
-// Servicios de clientes
-export const clientesService = {
-  async getAll() {
-    return apiRequest('/clientes');
-  },
-
-  async getById(id) {
-    return apiRequest(`/clientes/${id}`);
-  },
-
-  async create(cliente) {
-    return apiRequest('/clientes', {
-      method: 'POST',
-      body: JSON.stringify(cliente),
-    });
-  },
-
-  async update(id, cliente) {
-    return apiRequest(`/clientes/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(cliente),
-    });
-  },
-
-  async delete(id) {
-    return apiRequest(`/clientes/${id}`, {
-      method: 'DELETE',
-    });
-  },
-
-  async getVehiculos(clienteId) {
-    return apiRequest(`/clientes/${clienteId}/vehiculos`);
-  },
-
-  async getCitas(clienteId) {
-    return apiRequest(`/clientes/${clienteId}/citas`);
-  },
-
-  async search(termino) {
-    return apiRequest(`/clientes/buscar/${termino}`);
-  },
-};
-
 // Servicios de vehículos
 export const vehiculosService = {
   async getAll() {
@@ -261,6 +218,50 @@ export const citasService = {
 
   async getEstadisticas() {
     return apiRequest('/citas/estadisticas/resumen');
+  },
+};
+
+// Servicios de usuarios
+export const usuariosService = {
+  // Obtener todos los usuarios
+  async getAll() {
+    return await apiRequest("/usuarios", { method: "GET" });
+  },
+
+  // Obtener un usuario por su ID
+  async getById(id) {
+    return await apiRequest(`/usuarios/${id}`, { method: "GET" });
+  },
+
+  // Crear un nuevo usuario
+  async create(usuario) {
+    return await apiRequest("/usuarios", {
+      method: "POST",
+      body: JSON.stringify(usuario),
+    });
+  },
+
+  // Actualizar un usuario existente
+  async update(id, usuario) {
+    return await apiRequest(`/usuarios/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(usuario),
+    });
+  },
+
+  // Eliminar un usuario por su ID
+  async delete(id) {
+    return await apiRequest(`/usuarios/${id}`, { method: "DELETE" });
+  },
+
+  // Buscar usuarios por un término (nombre, apellido, etc.)
+  async search(termino) {
+    return await apiRequest(`/usuarios/buscar/${termino}`, { method: "GET" });
+  },
+
+  // Obtener estadísticas relacionadas con usuarios
+  async getEstadisticas() {
+    return await apiRequest("/usuarios/estadisticas", { method: "GET" });
   },
 };
 
