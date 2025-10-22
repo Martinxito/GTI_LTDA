@@ -40,6 +40,8 @@ Registrar nuevo usuario
 
 ### 👥 Clientes
 
+Los clientes se gestionan directamente en la tabla `usuarios` utilizando el rol `cliente`.
+
 #### GET `/clientes`
 Obtener todos los clientes
 
