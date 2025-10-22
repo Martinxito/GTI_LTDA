@@ -30,15 +30,11 @@ function GestionVehiculos() {
   const loadVehiculos = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await vehiculosService.getAll();
+      const data = user?.rol === "cliente"
+        ? await vehiculosService.getByCliente(user.id)
+        : await vehiculosService.getAll();
 
-      // Filtrar vehículos según el rol del usuario
-      const filteredVehiculos =
-        user.rol === "Cliente"
-          ? data.filter((vehiculo) => vehiculo.cliente_id === user.id) // Mostrar solo vehículos del cliente
-          : data; // Mostrar todos los vehículos para otros roles
-
-      setVehiculos(Array.isArray(filteredVehiculos) ? filteredVehiculos : []);
+      setVehiculos(Array.isArray(data) ? data : []);
     } catch (error) {
       setError("Error al cargar vehículos: " + error.message);
       setVehiculos([]);
@@ -129,7 +125,7 @@ function GestionVehiculos() {
       key: "actions",
       label: "Acciones",
       render: (vehiculo) =>
-        user.rol === "Jefe de Taller" && ( // Solo mostrar acciones para el Jefe de Taller
+        user.rol === "jefe_taller" && ( // Solo mostrar acciones para el Jefe de Taller
           <div style={{ display: "flex", gap: "0.5rem" }}>
             <Button
               variant="secondary"
@@ -173,7 +169,7 @@ function GestionVehiculos() {
           >
             🚗 Gestión de Vehículos
           </h1>
-          {user.rol === "Jefe de Taller" && (
+          {user.rol === "jefe_taller" && (
             <Button
               onClick={() => {
                 setShowForm(true);

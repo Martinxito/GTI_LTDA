@@ -17,7 +17,7 @@ function Cliente() {
       setLoading(true);
       const [citasData, vehiculosData] = await Promise.all([
         citasService.getAll(),
-        vehiculosService.getAll()
+        vehiculosService.getByCliente(user.id)
       ]);
 
       // Filtrar citas del cliente actual

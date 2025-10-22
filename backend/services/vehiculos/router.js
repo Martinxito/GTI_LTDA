@@ -8,7 +8,11 @@ router.use(authenticate);
 
 router.get('/', async (req, res, next) => {
   try {
-    const vehicles = await service.listVehicles();
+    const { user } = req;
+    const vehicles = user?.rol === 'cliente'
+      ? await service.listVehiclesByClient(user.id)
+      : await service.listVehicles();
+
     res.json(vehicles);
   } catch (error) {
     next(error);
@@ -17,7 +21,14 @@ router.get('/', async (req, res, next) => {
 
 router.get('/cliente/:clienteId', async (req, res, next) => {
   try {
-    const vehicles = await service.listVehiclesByClient(req.params.clienteId);
+    const { user } = req;
+    const { clienteId } = req.params;
+
+    if (user?.rol === 'cliente' && Number(clienteId) !== Number(user.id)) {
+      return res.status(403).json({ error: 'No autorizado para consultar estos vehículos' });
+    }
+
+    const vehicles = await service.listVehiclesByClient(clienteId);
     res.json(vehicles);
   } catch (error) {
     next(error);
