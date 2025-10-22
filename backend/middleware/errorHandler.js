@@ -1,6 +1,6 @@
 const { ServiceError } = require('../services/utils/serviceError');
 
-function errorHandler(err, req, res, next) {
+function errorHandler(err, req, res, _next) {
   if (err instanceof ServiceError || err.name === 'ServiceError') {
     const response = { error: err.message };
     if (err.details) {
