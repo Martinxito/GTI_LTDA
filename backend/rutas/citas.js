@@ -22,8 +22,7 @@ router.get('/', async (req, res) => {
         s.precio_base as servicio_precio,
         m.nombre as mecanico_nombre
       FROM citas c
-      LEFT JOIN clientes cl ON c.cliente_id = cl.id
-      LEFT JOIN usuarios u ON cl.usuario_id = u.id
+      LEFT JOIN usuarios u ON c.cliente_id = u.id
       LEFT JOIN vehiculos v ON c.vehiculo_id = v.id
       LEFT JOIN servicios s ON c.servicio_id = s.id
       LEFT JOIN usuarios m ON c.mecanico_id = m.id
@@ -51,8 +50,7 @@ router.get('/fecha/:fecha', async (req, res) => {
         s.nombre as servicio_nombre,
         m.nombre as mecanico_nombre
       FROM citas c
-      LEFT JOIN clientes cl ON c.cliente_id = cl.id
-      LEFT JOIN usuarios u ON cl.usuario_id = u.id
+      LEFT JOIN usuarios u ON c.cliente_id = u.id
       LEFT JOIN vehiculos v ON c.vehiculo_id = v.id
       LEFT JOIN servicios s ON c.servicio_id = s.id
       LEFT JOIN usuarios m ON c.mecanico_id = m.id
@@ -80,8 +78,7 @@ router.get('/mecanico/:mecanicoId', async (req, res) => {
         v.placa as vehiculo_placa,
         s.nombre as servicio_nombre
       FROM citas c
-      LEFT JOIN clientes cl ON c.cliente_id = cl.id
-      LEFT JOIN usuarios u ON cl.usuario_id = u.id
+      LEFT JOIN usuarios u ON c.cliente_id = u.id
       LEFT JOIN vehiculos v ON c.vehiculo_id = v.id
       LEFT JOIN servicios s ON c.servicio_id = s.id
       WHERE c.mecanico_id = $1
@@ -114,8 +111,7 @@ router.get('/:id', async (req, res) => {
         s.duracion_estimada as servicio_duracion,
         m.nombre as mecanico_nombre
       FROM citas c
-      LEFT JOIN clientes cl ON c.cliente_id = cl.id
-      LEFT JOIN usuarios u ON cl.usuario_id = u.id
+      LEFT JOIN usuarios u ON c.cliente_id = u.id
       LEFT JOIN vehiculos v ON c.vehiculo_id = v.id
       LEFT JOIN servicios s ON c.servicio_id = s.id
       LEFT JOIN usuarios m ON c.mecanico_id = m.id

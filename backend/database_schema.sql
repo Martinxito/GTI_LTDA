@@ -12,6 +12,10 @@ CREATE TABLE IF NOT EXISTS usuarios (
     apellido VARCHAR(100),
     email VARCHAR(255) UNIQUE,
     telefono VARCHAR(20),
+    direccion TEXT,
+    fecha_nacimiento DATE,
+    documento_identidad VARCHAR(20) UNIQUE,
+    tipo_documento VARCHAR(10) DEFAULT 'CC',
     usuario VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     rol VARCHAR(20) NOT NULL CHECK (rol IN ('cliente', 'mecanico', 'jefe_taller')),
@@ -20,22 +24,10 @@ CREATE TABLE IF NOT EXISTS usuarios (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla de clientes (información adicional para usuarios con rol cliente)
-CREATE TABLE IF NOT EXISTS clientes (
-    id SERIAL PRIMARY KEY,
-    usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
-    direccion TEXT,
-    fecha_nacimiento DATE,
-    documento_identidad VARCHAR(20) UNIQUE,
-    tipo_documento VARCHAR(10) DEFAULT 'CC',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Tabla de vehículos
 CREATE TABLE IF NOT EXISTS vehiculos (
     id SERIAL PRIMARY KEY,
-    cliente_id INTEGER REFERENCES clientes(id) ON DELETE CASCADE,
+    cliente_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
     marca VARCHAR(50) NOT NULL,
     modelo VARCHAR(50) NOT NULL,
     año INTEGER NOT NULL,
@@ -67,7 +59,7 @@ CREATE TABLE IF NOT EXISTS servicios (
 -- Tabla de citas/servicios programados
 CREATE TABLE IF NOT EXISTS citas (
     id SERIAL PRIMARY KEY,
-    cliente_id INTEGER REFERENCES clientes(id) ON DELETE CASCADE,
+    cliente_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
     vehiculo_id INTEGER REFERENCES vehiculos(id) ON DELETE CASCADE,
     servicio_id INTEGER REFERENCES servicios(id),
     mecanico_id INTEGER REFERENCES usuarios(id), -- usuario con rol mecanico
@@ -116,7 +108,7 @@ CREATE TABLE IF NOT EXISTS facturas (
     id SERIAL PRIMARY KEY,
     numero_factura VARCHAR(20) UNIQUE NOT NULL,
     cita_id INTEGER REFERENCES citas(id),
-    cliente_id INTEGER REFERENCES clientes(id),
+    cliente_id INTEGER REFERENCES usuarios(id),
     subtotal DECIMAL(10,2) NOT NULL DEFAULT 0,
     descuento DECIMAL(10,2) DEFAULT 0,
     impuestos DECIMAL(10,2) DEFAULT 0,
@@ -185,7 +177,6 @@ $$ language 'plpgsql';
 
 -- Triggers para todas las tablas con updated_at
 CREATE TRIGGER update_usuarios_updated_at BEFORE UPDATE ON usuarios FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER update_clientes_updated_at BEFORE UPDATE ON clientes FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_vehiculos_updated_at BEFORE UPDATE ON vehiculos FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_servicios_updated_at BEFORE UPDATE ON servicios FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_citas_updated_at BEFORE UPDATE ON citas FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -217,8 +208,7 @@ SELECT
     s.precio_base as servicio_precio,
     m.nombre as mecanico_nombre
 FROM citas c
-LEFT JOIN clientes cl ON c.cliente_id = cl.id
-LEFT JOIN usuarios u ON cl.usuario_id = u.id
+LEFT JOIN usuarios u ON c.cliente_id = u.id
 LEFT JOIN vehiculos v ON c.vehiculo_id = v.id
 LEFT JOIN servicios s ON c.servicio_id = s.id
 LEFT JOIN usuarios m ON c.mecanico_id = m.id;

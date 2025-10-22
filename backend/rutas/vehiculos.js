@@ -16,8 +16,7 @@ router.get('/', async (req, res) => {
         u.apellido as cliente_apellido,
         u.telefono as cliente_telefono
       FROM vehiculos v
-      JOIN clientes c ON v.cliente_id = c.id
-      JOIN usuarios u ON c.usuario_id = u.id
+      JOIN usuarios u ON v.cliente_id = u.id
       WHERE v.activo = true
       ORDER BY v.created_at DESC
     `);
@@ -57,8 +56,7 @@ router.get('/:id', async (req, res) => {
         u.telefono as cliente_telefono,
         u.email as cliente_email
       FROM vehiculos v
-      JOIN clientes c ON v.cliente_id = c.id
-      JOIN usuarios u ON c.usuario_id = u.id
+      JOIN usuarios u ON v.cliente_id = u.id
       WHERE v.id = $1 AND v.activo = true
     `, [id]);
     
