@@ -18,7 +18,7 @@ function GestionServicios() {
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
-    precio: "",
+    precio_base: "",
     categoria: "",
     duracion_estimada: ""
   });
@@ -46,17 +46,25 @@ function GestionServicios() {
     setSuccess("");
 
     try {
+      const payload = {
+        ...formData,
+        precio_base: Number(formData.precio_base),
+        duracion_estimada: formData.duracion_estimada
+          ? Number(formData.duracion_estimada)
+          : undefined
+      };
+
       if (editingServicio) {
-        await serviciosService.update(editingServicio.id, formData);
+        await serviciosService.update(editingServicio.id, payload);
         setSuccess("Servicio actualizado correctamente");
       } else {
-        await serviciosService.create(formData);
+        await serviciosService.create(payload);
         setSuccess("Servicio creado correctamente");
       }
-      
+
       setShowForm(false);
       setEditingServicio(null);
-      setFormData({ nombre: "", descripcion: "", precio: "", categoria: "", duracion_estimada: "" });
+      setFormData({ nombre: "", descripcion: "", precio_base: "", categoria: "", duracion_estimada: "" });
       loadServicios();
     } catch (error) {
       setError("Error al guardar servicio: " + error.message);
@@ -68,7 +76,7 @@ function GestionServicios() {
     setFormData({
       nombre: servicio.nombre || "",
       descripcion: servicio.descripcion || "",
-      precio: servicio.precio || "",
+      precio_base: servicio.precio_base != null ? String(servicio.precio_base) : "",
       categoria: servicio.categoria || "",
       duracion_estimada: servicio.duracion_estimada || ""
     });
@@ -100,10 +108,13 @@ function GestionServicios() {
     { key: "nombre", label: "Nombre" },
     { key: "descripcion", label: "Descripción" },
     { key: "categoria", label: "Categoría" },
-    { 
-      key: "precio", 
+    {
+      key: "precio_base",
       label: "Precio",
-      render: (servicio) => servicio.precio ? `$${parseInt(servicio.precio).toLocaleString()}` : 'N/A'
+      render: (servicio) =>
+        servicio.precio_base != null
+          ? `$${parseInt(servicio.precio_base).toLocaleString()}`
+          : 'N/A'
     },
     { key: "duracion_estimada", label: "Duración (min)" },
     {
@@ -143,7 +154,7 @@ function GestionServicios() {
             onClick={() => {
               setShowForm(true);
               setEditingServicio(null);
-              setFormData({ nombre: "", descripcion: "", precio: "", categoria: "", duracion_estimada: "" });
+              setFormData({ nombre: "", descripcion: "", precio_base: "", categoria: "", duracion_estimada: "" });
             }}
           >
             ➕ Nuevo Servicio
@@ -196,10 +207,10 @@ function GestionServicios() {
                   </select>
                 </div>
                 <Input
-                  label="Precio"
+                  label="Precio Base"
                   type="number"
-                  value={formData.precio}
-                  onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
+                  value={formData.precio_base}
+                  onChange={(e) => setFormData({ ...formData, precio_base: e.target.value })}
                   required
                 />
                 <Input
@@ -248,7 +259,7 @@ function GestionServicios() {
                   onClick={() => {
                     setShowForm(false);
                     setEditingServicio(null);
-                    setFormData({ nombre: "", descripcion: "", precio: "", categoria: "", duracion_estimada: "" });
+                    setFormData({ nombre: "", descripcion: "", precio_base: "", categoria: "", duracion_estimada: "" });
                   }}
                 >
                   ❌ Cancelar

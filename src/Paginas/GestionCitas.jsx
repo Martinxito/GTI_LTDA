@@ -335,7 +335,10 @@ function GestionCitas() {
                     <option value="">Seleccionar servicio</option>
                     {servicios.map(servicio => (
                       <option key={servicio.id} value={servicio.id}>
-                        {servicio.nombre} - ${parseInt(servicio.precio).toLocaleString()}
+                        {servicio.nombre}
+                        {servicio.precio_base != null
+                          ? ` - $${parseInt(servicio.precio_base).toLocaleString()}`
+                          : ""}
                       </option>
                     ))}
                   </select>
