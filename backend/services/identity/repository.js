@@ -1,6 +1,22 @@
 const db = require('../../db');
 const fallbackStore = require('./fallbackStore');
 
+const REQUIRED_USER_COLUMNS = [
+  'id',
+  'nombre',
+  'apellido',
+  'email',
+  'telefono',
+  'direccion',
+  'usuario',
+  'rol',
+  'activo'
+];
+
+const POSTGRES_UNDEFINED_COLUMN_CODE = '42703';
+
+let useFlexibleUserQuery = false;
+
 function isConnectionError(error) {
   if (!error) {
     return false;
@@ -49,16 +65,37 @@ async function findByUsuario(usuario) {
 
 async function findAllUsers() {
   try {
+    if (useFlexibleUserQuery) {
+      const [rows] = await db.query('SELECT * FROM usuarios');
+      return rows.map((row) => normalizeUserRow(row));
+    }
+
     const [rows] = await db.query(
-      'SELECT id, nombre, apellido, email, telefono, direccion, usuario, rol, activo FROM usuarios'
+      `SELECT ${REQUIRED_USER_COLUMNS.join(', ')} FROM usuarios`
     );
-    return rows;
+    return rows.map((row) => normalizeUserRow(row));
   } catch (error) {
     if (isConnectionError(error)) {
       return fallbackStore.findAllUsers();
     }
+    if (error.code === POSTGRES_UNDEFINED_COLUMN_CODE) {
+      console.warn(
+        `[identity.repository] Columna faltante en la tabla usuarios detectada (${error.message}). ` +
+          'Usando consulta flexible para continuar mientras se ejecutan las migraciones.'
+      );
+      useFlexibleUserQuery = true;
+      const [rows] = await db.query('SELECT * FROM usuarios');
+      return rows.map((row) => normalizeUserRow(row));
+    }
     throw error;
   }
+}
+
+function normalizeUserRow(row) {
+  return REQUIRED_USER_COLUMNS.reduce((acc, column) => {
+    acc[column] = Object.prototype.hasOwnProperty.call(row, column) ? row[column] : null;
+    return acc;
+  }, {});
 }
 
 module.exports = {
