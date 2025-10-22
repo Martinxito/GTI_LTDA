@@ -66,22 +66,41 @@ async function createVehicle(payload) {
 }
 
 async function updateVehicle(id, payload) {
-  await getVehicle(id);
+  const existingVehicle = await getVehicle(id);
 
-  const data = {
-    marca: payload.marca,
-    modelo: payload.modelo,
-    año: payload.año,
-    placa: payload.placa,
-    color: payload.color,
-    kilometraje: payload.kilometraje,
-    tipo_combustible: payload.tipo_combustible,
-    numero_motor: payload.numero_motor,
-    numero_chasis: payload.numero_chasis,
-    observaciones: payload.observaciones
+  const resolveField = (field) => {
+    const value = payload[field];
+    if (value === undefined || value === null || value === '') {
+      return existingVehicle[field];
+    }
+    return value;
   };
 
-  if (!data.marca || !data.modelo || !data.año || !data.placa) {
+  const data = {
+    cliente_id: resolveField('cliente_id'),
+    marca: resolveField('marca'),
+    modelo: resolveField('modelo'),
+    año: resolveField('año'),
+    placa: resolveField('placa'),
+    color: resolveField('color'),
+    kilometraje: resolveField('kilometraje'),
+    tipo_combustible: resolveField('tipo_combustible'),
+    numero_motor: resolveField('numero_motor'),
+    numero_chasis: resolveField('numero_chasis'),
+    observaciones: resolveField('observaciones')
+  };
+
+  if (data.cliente_id !== undefined && data.cliente_id !== null && data.cliente_id !== '') {
+    data.cliente_id = Number(data.cliente_id);
+  }
+  if (data.año !== undefined && data.año !== null && data.año !== '') {
+    data.año = Number(data.año);
+  }
+  if (data.kilometraje !== undefined && data.kilometraje !== null && data.kilometraje !== '') {
+    data.kilometraje = Number(data.kilometraje);
+  }
+
+  if (!data.cliente_id || !data.marca || !data.modelo || !data.año || !data.placa) {
     throw new ServiceError('Faltan datos obligatorios para actualizar el vehículo', { status: 400 });
   }
 

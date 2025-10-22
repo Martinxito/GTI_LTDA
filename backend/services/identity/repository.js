@@ -304,13 +304,17 @@ async function findAllUsers() {
 
     if (useFlexibleUserQuery || !hasRequiredColumns) {
       const [rows] = await db.query('SELECT * FROM usuarios');
-      return rows.map((row) => normalizeUserRow(row));
+      return rows
+        .map((row) => normalizeUserRow(row))
+        .filter((user) => user.activo !== false);
     }
 
     const [rows] = await db.query(
       `SELECT ${REQUIRED_USER_COLUMNS.join(', ')} FROM usuarios`
     );
-    return rows.map((row) => normalizeUserRow(row));
+    return rows
+      .map((row) => normalizeUserRow(row))
+      .filter((user) => user.activo !== false);
   } catch (error) {
     if (isConnectionError(error)) {
       return fallbackStore.findAllUsers();
@@ -327,7 +331,9 @@ async function findAllUsers() {
       useFlexibleUserQuery = true;
       userTableHasRequiredColumns = false;
       const [rows] = await db.query('SELECT * FROM usuarios');
-      return rows.map((row) => normalizeUserRow(row));
+      return rows
+        .map((row) => normalizeUserRow(row))
+        .filter((user) => user.activo !== false);
     }
     throw error;
   }

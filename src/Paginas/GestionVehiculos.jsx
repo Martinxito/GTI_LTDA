@@ -63,11 +63,17 @@ function GestionVehiculos() {
     setSuccess("");
 
     try {
+      const payload = {
+        ...formData,
+        cliente_id: Number(formData.cliente_id),
+        año: Number(formData.año)
+      };
+
       if (editingVehiculo) {
-        await vehiculosService.update(editingVehiculo.id, formData);
+        await vehiculosService.update(editingVehiculo.id, payload);
         setSuccess("Vehículo actualizado correctamente");
       } else {
-        await vehiculosService.create(formData);
+        await vehiculosService.create(payload);
         setSuccess("Vehículo creado correctamente");
       }
 
@@ -88,7 +94,7 @@ function GestionVehiculos() {
       año: vehiculo.año || "",
       placa: vehiculo.placa || "",
       color: vehiculo.color || "",
-      cliente_id: vehiculo.cliente_id || ""
+      cliente_id: vehiculo.cliente_id ? String(vehiculo.cliente_id) : ""
     });
     setShowForm(true);
   };
