@@ -21,8 +21,12 @@ function HistorialMantenimiento() {
     }
     try {
       setLoading(true);
+      const vehiculosRequest = user.rol === 'cliente'
+        ? vehiculosService.getByCliente(user.id)
+        : vehiculosService.getAll();
+
       const [vehiculosData, citasData] = await Promise.all([
-        vehiculosService.getAll(),
+        vehiculosRequest,
         citasService.getAll()
       ]);
 
