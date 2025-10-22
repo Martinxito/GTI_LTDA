@@ -1,21 +1,45 @@
-<<<<<<< HEAD
-# Primer-Proyecto
-=======
-# React + Vite
-# NodeJs + Express
+# GTI_LTDA
 
-npm run dev en carpeta inicial
+Este repositorio contiene el frontend (React + Vite) y el backend (Node.js + Express) del proyecto.
 
-npm start en carpeta backend
+## Requisitos previos
+- Node.js 18 o superior
+- npm 9 o superior
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Instalación de dependencias
+Ejecuta este comando en la raíz del repositorio para instalar las dependencias del frontend y del backend:
 
-Currently, two official plugins are available:
+```bash
+npm install
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Ejecución en desarrollo
+### Frontend
+Desde la raíz del repositorio:
 
-## Expanding the ESLint configuration
+```bash
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
->>>>>>> master
+### Backend
+Desde la carpeta `backend`:
+
+```bash
+cd backend
+npm start
+```
+
+## Nota para Windows PowerShell
+Si al ejecutar `npm run dev` aparece el error `No se puede cargar el archivo ... npm.ps1 porque la ejecución de scripts está deshabilitada en este sistema`, habilita la ejecución de scripts para tu usuario con el siguiente comando de PowerShell abierto como administrador:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+Si prefieres aplicarlo solo a la sesión actual, puedes ejecutar:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+Tras aplicar uno de los comandos anteriores, vuelve a ejecutar `npm run dev`.
