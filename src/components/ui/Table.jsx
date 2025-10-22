@@ -81,11 +81,14 @@ const Table = ({
       <table style={tableStyles} className={className} {...props}>
         <thead style={headerStyles}>
           <tr>
-            {columns.map((column, index) => (
-              <th key={index} style={headerCellStyles}>
-                {column.header}
-              </th>
-            ))}
+            {columns.map((column, index) => {
+              const headerLabel = column.header ?? column.label ?? column.key;
+              return (
+                <th key={index} style={headerCellStyles}>
+                  {headerLabel}
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>
@@ -98,11 +101,16 @@ const Table = ({
           ) : (
             data.map((row, rowIndex) => (
               <tr key={rowIndex} style={rowStyles}>
-                {columns.map((column, colIndex) => (
-                  <td key={colIndex} style={cellStyles}>
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
-                  </td>
-                ))}
+                {columns.map((column, colIndex) => {
+                  const cellContent = column.render
+                    ? column.render(row, column)
+                    : row?.[column.key];
+                  return (
+                    <td key={colIndex} style={cellStyles}>
+                      {cellContent}
+                    </td>
+                  );
+                })}
               </tr>
             ))
           )}
