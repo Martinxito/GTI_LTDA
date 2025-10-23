@@ -51,7 +51,7 @@ _Alias legado_: `/usuarios/register`, `/usuarios/login`.
 - `GET /agenda/servicios` – listar servicios activos.
 - `GET /agenda/servicios/:id` – detalle de un servicio.
 - `GET /agenda/servicios/categoria/:categoria` – servicios por categoría.
-- `GET /agenda/servicios/categorias/list` – categorías disponibles.
+- `GET /agenda/servicios/categorias/list` – categorías disponibles
 - `POST /agenda/servicios` – crear servicio del catálogo.
 - `PUT /agenda/servicios/:id` – actualizar servicio.
 - `DELETE /agenda/servicios/:id` – baja lógica del servicio.

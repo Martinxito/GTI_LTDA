@@ -42,4 +42,4 @@ Si prefieres aplicarlo solo a la sesión actual, puedes ejecutar:
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
-Tras aplicar uno de los comandos anteriores, vuelve a ejecutar `npm run dev`.
+Tras aplicar uno de los comandos anteriores, vuelve a ejecutar `npm run dev`

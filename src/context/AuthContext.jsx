@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { authService, verifyToken, clearAuth } from "../Servicios/api";
 
 export const AuthContext = createContext();
-
+// Proveedor de contexto de autenticación
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
