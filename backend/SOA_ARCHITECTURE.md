@@ -1,7 +1,5 @@
 # Arquitectura SOA del backend
 
-Este backend Express adopta una separación por servicios de acuerdo al modelo SOA descrito:
-
 | Servicio | Responsabilidad | Prefijos canónicos | Dependencias clave |
 |----------|-----------------|--------------------|--------------------|
 | **Identity** | Registro, autenticación y emisión de JWT | `/identity`, alias `/usuarios` | Tabla `usuarios`, módulo `security` |
@@ -30,10 +28,4 @@ Este backend Express adopta una separación por servicios de acuerdo al modelo S
 - **Historial** funciona como servicio auxiliar que puede evolucionar a órdenes de trabajo completas (p.ej., agregando estados, responsables y costos). Hoy sólo depende de `citas` para enriquecer la información.
 - **Inventario** permanece totalmente independiente; en una siguiente iteración se podrían exponer eventos de consumo ligados a `historial` o `agenda` usando colas o webhooks.
 
-## Recomendaciones de mejora
 
-1. **Eventos asíncronos entre servicios:** actualmente la coordinación se hace de forma sincrónica mediante consultas directas. Introducir un bus de eventos (RabbitMQ, Redis Streams) permitiría notificar a `inventario` cuando `historial` registra un consumo, o disparar recordatorios desde `agenda` sin bloquear la operación.
-2. **Validaciones de dominio compartidas:** para evitar duplicación en el cálculo de disponibilidad (por ejemplo, mecánicos, stock), crear módulos en `services/shared` que encapsulen reglas reutilizables.
-3. **Documentación de contratos:** añadir especificaciones OpenAPI/Swagger por servicio simplificaría la publicación en API Gateway y facilitaría pruebas contractuales.
-
-Con esta estructura, añadir un nuevo servicio implica crear un directorio bajo `services/` y registrarlo en `services/index.js`. El bootstrap centralizado en `backend/index.js` lo publica automáticamente bajo `/api/<servicio>` y, si se requieren alias, basta con definirlos en el `index.js` del nuevo servicio.
