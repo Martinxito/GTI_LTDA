@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FiBell, FiX } from "react-icons/fi";
 import { useNotifications } from '../context/NotificationContext';
 import Card from './ui/Card';
 import Button from './ui/Button';
@@ -56,7 +57,7 @@ const NotificationCenter = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="relative"
       >
-        🔔
+        <FiBell size={18} />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -115,7 +116,10 @@ const NotificationCenter = () => {
                 >
                   <div className="flex items-start gap-3">
                     <div className="text-lg">
-                      {getNotificationIcon(notification.type)}
+                      {(() => {
+                        const Icon = getNotificationIcon(notification.type);
+                        return <Icon size={18} />;
+                      })()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
@@ -137,7 +141,7 @@ const NotificationCenter = () => {
                             }}
                             className="text-gray-400 hover:text-gray-600"
                           >
-                            ✕
+                            <FiX size={16} />
                           </Button>
                         </div>
                       </div>

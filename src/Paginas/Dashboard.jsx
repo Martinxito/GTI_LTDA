@@ -1,3 +1,4 @@
+import { FiAlertTriangle, FiCalendar, FiDollarSign } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 
@@ -20,7 +21,7 @@ function Dashboard() {
         color: "#1e293b",
         marginBottom: "1rem"
       }}>
-        📊 Dashboard
+        Panel general
       </h1>
       
       <div style={{
@@ -47,17 +48,23 @@ function Dashboard() {
           <div style={{
             backgroundColor: "#f0f9ff",
             padding: "1.5rem",
-            borderRadius: "8px",
-            border: "1px solid #bae6fd"
+            borderRadius: "12px",
+            border: "1px solid #bae6fd",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
           }}>
-            <h3 style={{
-              fontSize: "1.25rem",
-              fontWeight: "600",
-              color: "#0369a1",
-              margin: "0 0 0.5rem 0"
-            }}>
-              📅 Citas del Día
-            </h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{
+                fontSize: "1.1rem",
+                fontWeight: "600",
+                color: "#0369a1",
+                margin: 0
+              }}>
+                Citas del día
+              </h3>
+              <FiCalendar size={24} color="#0369a1" />
+            </div>
             <p style={{
               fontSize: "2rem",
               fontWeight: "700",
@@ -66,22 +73,29 @@ function Dashboard() {
             }}>
               5
             </p>
+            <span style={{ color: "#0369a1", fontSize: "0.85rem" }}>Clientes agendados para hoy</span>
           </div>
-          
+
           <div style={{
             backgroundColor: "#f0fdf4",
             padding: "1.5rem",
-            borderRadius: "8px",
-            border: "1px solid #bbf7d0"
+            borderRadius: "12px",
+            border: "1px solid #bbf7d0",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
           }}>
-            <h3 style={{
-              fontSize: "1.25rem",
-              fontWeight: "600",
-              color: "#166534",
-              margin: "0 0 0.5rem 0"
-            }}>
-              💰 Ingresos del Mes
-            </h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{
+                fontSize: "1.1rem",
+                fontWeight: "600",
+                color: "#166534",
+                margin: 0
+              }}>
+                Ingresos del mes
+              </h3>
+              <FiDollarSign size={24} color="#166534" />
+            </div>
             <p style={{
               fontSize: "2rem",
               fontWeight: "700",
@@ -90,22 +104,29 @@ function Dashboard() {
             }}>
               $2,500,000
             </p>
+            <span style={{ color: "#166534", fontSize: "0.85rem" }}>Actualizado al día de hoy</span>
           </div>
-          
+
           <div style={{
             backgroundColor: "#fef2f2",
             padding: "1.5rem",
-            borderRadius: "8px",
-            border: "1px solid #fecaca"
+            borderRadius: "12px",
+            border: "1px solid #fecaca",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
           }}>
-            <h3 style={{
-              fontSize: "1.25rem",
-              fontWeight: "600",
-              color: "#dc2626",
-              margin: "0 0 0.5rem 0"
-            }}>
-              ⚠️ Stock Bajo
-            </h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{
+                fontSize: "1.1rem",
+                fontWeight: "600",
+                color: "#dc2626",
+                margin: 0
+              }}>
+                Stock bajo
+              </h3>
+              <FiAlertTriangle size={24} color="#dc2626" />
+            </div>
             <p style={{
               fontSize: "2rem",
               fontWeight: "700",
@@ -114,6 +135,7 @@ function Dashboard() {
             }}>
               3
             </p>
+            <span style={{ color: "#dc2626", fontSize: "0.85rem" }}>Productos requieren reposición</span>
           </div>
         </div>
       </div>

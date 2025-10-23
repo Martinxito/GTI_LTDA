@@ -1,4 +1,15 @@
 import { useState, useEffect } from "react";
+import {
+  FiActivity,
+  FiAlertTriangle,
+  FiBox,
+  FiCheckCircle,
+  FiEdit,
+  FiPlus,
+  FiSave,
+  FiTrash2,
+  FiX
+} from "react-icons/fi";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -106,21 +117,21 @@ function JefeTaller() {
   const getStockStatus = (cantidad, cantidadMinima) => {
     const cantidadNum = parseInt(cantidad);
     const minimaNum = parseInt(cantidadMinima);
-    
+
     if (cantidadNum <= minimaNum) {
-      return { color: "#ef4444", text: "Stock Bajo", icon: "⚠️" };
+      return { color: "#ef4444", text: "Stock bajo", icon: FiAlertTriangle };
     } else if (cantidadNum <= minimaNum * 2) {
-      return { color: "#f59e0b", text: "Stock Medio", icon: "⚡" };
+      return { color: "#f59e0b", text: "Stock medio", icon: FiActivity };
     } else {
-      return { color: "#10b981", text: "Stock OK", icon: "✅" };
+      return { color: "#10b981", text: "Stock óptimo", icon: FiCheckCircle };
     }
   };
 
   const columns = [
     { key: "nombre", label: "Nombre" },
     { key: "categoria", label: "Categoría" },
-    { 
-      key: "cantidad", 
+    {
+      key: "cantidad",
       label: "Cantidad",
       render: (item) => (
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -128,8 +139,18 @@ function JefeTaller() {
           {(() => {
             const status = getStockStatus(item.cantidad, item.cantidad_minima);
             return (
-              <span style={{ color: status.color, fontSize: "0.875rem" }}>
-                {status.icon}
+              <span
+                style={{
+                  color: status.color,
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.35rem"
+                }}
+              >
+                <status.icon size={14} />
+                <span>{status.text}</span>
               </span>
             );
           })()}
@@ -150,26 +171,28 @@ function JefeTaller() {
     {
       key: "actions",
       label: "Acciones",
-      render: (item) => (
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleEdit(item)}
-          >
-            ✏️ Editar
-          </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => handleDelete(item.id)}
-          >
-            🗑️ Eliminar
-          </Button>
-        </div>
-      )
-    }
-  ];
+          render: (item) => (
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => handleEdit(item)}
+              >
+                <FiEdit size={16} />
+                <span>Editar</span>
+              </Button>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => handleDelete(item.id)}
+              >
+                <FiTrash2 size={16} />
+                <span>Eliminar</span>
+              </Button>
+            </div>
+          )
+        }
+      ];
 
   const stockBajo = inventario.filter(item => 
     parseInt(item.cantidad) <= parseInt(item.cantidad_minima)
@@ -181,8 +204,19 @@ function JefeTaller() {
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-          <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", margin: 0 }}>
-            📦 Gestión de Inventario
+          <h1
+            style={{
+              fontSize: "2rem",
+              fontWeight: "700",
+              color: "#1e293b",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem"
+            }}
+          >
+            <FiBox size={26} color="#2563eb" />
+            <span>Gestión de inventario</span>
           </h1>
           <Button
             onClick={() => {
@@ -191,7 +225,8 @@ function JefeTaller() {
               setFormData({ nombre: "", descripcion: "", cantidad: "", cantidad_minima: "", precio_compra: "", precio_venta: "", categoria: "" });
             }}
           >
-            ➕ Nuevo Item
+            <FiPlus size={16} />
+            <span>Nuevo item</span>
           </Button>
         </div>
 
@@ -201,7 +236,7 @@ function JefeTaller() {
         {/* Alertas de stock bajo */}
         {stockBajo.length > 0 && (
           <Alert type="warning">
-            ⚠️ <strong>Stock Bajo:</strong> {stockBajo.length} item(s) necesitan reposición:
+            <strong>Stock bajo:</strong> {stockBajo.length} item(s) necesitan reposición:
             {stockBajo.map(item => ` ${item.nombre}`).join(", ")}
           </Alert>
         )}
@@ -307,7 +342,17 @@ function JefeTaller() {
               
               <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                 <Button type="submit">
-                  {editingItem ? "💾 Actualizar" : "➕ Crear"}
+                  {editingItem ? (
+                    <>
+                      <FiSave size={16} />
+                      <span>Actualizar</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiPlus size={16} />
+                      <span>Crear</span>
+                    </>
+                  )}
                 </Button>
                 <Button
                   type="button"
@@ -318,7 +363,8 @@ function JefeTaller() {
                     setFormData({ nombre: "", descripcion: "", cantidad: "", cantidad_minima: "", precio_compra: "", precio_venta: "", categoria: "" });
                   }}
                 >
-                  ❌ Cancelar
+                  <FiX size={16} />
+                  <span>Cancelar</span>
                 </Button>
               </div>
             </form>

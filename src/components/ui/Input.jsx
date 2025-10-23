@@ -1,4 +1,4 @@
-import React from 'react';
+import { useId } from 'react';
 
 const Input = ({
   label,
@@ -10,66 +10,48 @@ const Input = ({
   disabled = false,
   required = false,
   className = '',
+  id,
   ...props
 }) => {
-  const inputStyles = {
-    width: '100%',
-    padding: '0.75rem 1rem',
-    fontSize: 'var(--font-size-base)',
-    fontFamily: 'var(--font-family)',
-    border: `1px solid ${error ? 'var(--error-color)' : 'var(--border-color)'}`,
-    borderRadius: 'var(--border-radius)',
-    backgroundColor: disabled ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
-    color: 'var(--text-primary)',
-    transition: 'var(--transition-fast)',
-    outline: 'none',
-    '&:focus': {
-      borderColor: 'var(--primary-color)',
-      boxShadow: '0 0 0 3px var(--primary-light)',
-    },
-    '&:disabled': {
-      cursor: 'not-allowed',
-      opacity: 0.6,
-    },
-  };
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+  const errorId = error ? `${inputId}-error` : undefined;
 
-  const labelStyles = {
-    display: 'block',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: '600',
-    color: 'var(--text-primary)',
-    marginBottom: '0.5rem',
-  };
-
-  const errorStyles = {
-    fontSize: 'var(--font-size-sm)',
-    color: 'var(--error-color)',
-    marginTop: '0.25rem',
-  };
-
-  const containerStyles = {
-    marginBottom: '1rem',
-  };
+  const containerClassName = ['form-field', className].filter(Boolean).join(' ');
+  const inputClassName = [
+    'form-input',
+    error ? 'form-input--error' : '',
+    disabled ? 'form-input--disabled' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <div style={containerStyles} className={className}>
+    <div className={containerClassName}>
       {label && (
-        <label style={labelStyles}>
+        <label className="form-label" htmlFor={inputId}>
           {label}
-          {required && <span style={{ color: 'var(--error-color)', marginLeft: '0.25rem' }}>*</span>}
+          {required && <span className="form-label__required">*</span>}
         </label>
       )}
       <input
+        id={inputId}
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
         disabled={disabled}
         required={required}
-        style={inputStyles}
+        className={inputClassName}
+        aria-invalid={!!error}
+        aria-describedby={errorId}
         {...props}
       />
-      {error && <div style={errorStyles}>{error}</div>}
+      {error && (
+        <div id={errorId} className="form-error">
+          {error}
+        </div>
+      )}
     </div>
   );
 };

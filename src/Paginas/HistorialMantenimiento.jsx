@@ -1,4 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
+import {
+  FiArrowLeft,
+  FiCalendar,
+  FiCheckCircle,
+  FiClipboard,
+  FiClock,
+  FiTruck
+} from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
@@ -133,7 +141,8 @@ function HistorialMantenimiento() {
           size="sm"
           onClick={() => setSelectedVehiculo(vehiculo)}
         >
-          📋 Ver Historial
+          <FiClipboard size={16} />
+          <span>Ver historial</span>
         </Button>
       )
     }
@@ -144,8 +153,17 @@ function HistorialMantenimiento() {
       <Menu />
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", marginBottom: "2rem" }}>
-          📋 Historial de Mantenimiento
+        <h1 style={{
+          fontSize: "2rem",
+          fontWeight: "700",
+          color: "#1e293b",
+          marginBottom: "2rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem"
+        }}>
+          <FiClipboard size={26} color="#2563eb" />
+          <span>Historial de mantenimiento</span>
         </h1>
 
         {error && <Alert type="error" onClose={() => setError("")}>{error}</Alert>}
@@ -158,46 +176,82 @@ function HistorialMantenimiento() {
           marginBottom: "2rem"
         }}>
           <Card>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "2rem", fontWeight: "700", color: "#10b981", marginBottom: "0.5rem" }}>
-                ✅ {historial.length}
-              </div>
-              <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
-                Servicios Completados
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
+              <span style={{
+                width: "3rem",
+                height: "3rem",
+                borderRadius: "999px",
+                backgroundColor: "rgba(16, 185, 129, 0.12)",
+                color: "#10b981",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <FiCheckCircle size={22} />
+              </span>
+              <div>
+                <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#1e293b", lineHeight: 1 }}>
+                  {historial.length}
+                </div>
+                <div style={{ fontSize: "0.875rem", color: "#64748b" }}>Servicios completados</div>
               </div>
             </div>
           </Card>
-          
+
           <Card>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "2rem", fontWeight: "700", color: "#3b82f6", marginBottom: "0.5rem" }}>
-                🚗 {vehiculos.length}
-              </div>
-              <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
-                Vehículos Registrados
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
+              <span style={{
+                width: "3rem",
+                height: "3rem",
+                borderRadius: "999px",
+                backgroundColor: "rgba(37, 99, 235, 0.12)",
+                color: "#2563eb",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <FiTruck size={22} />
+              </span>
+              <div>
+                <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#1e293b", lineHeight: 1 }}>
+                  {vehiculos.length}
+                </div>
+                <div style={{ fontSize: "0.875rem", color: "#64748b" }}>Vehículos registrados</div>
               </div>
             </div>
           </Card>
-          
+
           <Card>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "2rem", fontWeight: "700", color: "#f59e0b", marginBottom: "0.5rem" }}>
-                📅 {historial.filter(item => {
-                  const fechaServicio = new Date(item.fecha_hora);
-                  const haceUnMes = new Date();
-                  haceUnMes.setMonth(haceUnMes.getMonth() - 1);
-                  return fechaServicio >= haceUnMes;
-                }).length}
-              </div>
-              <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
-                Último Mes
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
+              <span style={{
+                width: "3rem",
+                height: "3rem",
+                borderRadius: "999px",
+                backgroundColor: "rgba(245, 158, 11, 0.15)",
+                color: "#f59e0b",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <FiCalendar size={22} />
+              </span>
+              <div>
+                <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#1e293b", lineHeight: 1 }}>
+                  {historial.filter(item => {
+                    const fechaServicio = new Date(item.fecha_hora);
+                    const haceUnMes = new Date();
+                    haceUnMes.setMonth(haceUnMes.getMonth() - 1);
+                    return fechaServicio >= haceUnMes;
+                  }).length}
+                </div>
+                <div style={{ fontSize: "0.875rem", color: "#64748b" }}>Servicios último mes</div>
               </div>
             </div>
           </Card>
         </div>
 
         {/* Lista de vehículos */}
-        <Card title="🚗 Vehículos" className="mb-6">
+        <Card title="Vehículos" className="mb-6">
           <Table
             data={vehiculos}
             columns={vehiculosColumns}
@@ -208,8 +262,8 @@ function HistorialMantenimiento() {
 
         {/* Historial detallado */}
         {selectedVehiculo ? (
-          <Card 
-            title={`📋 Historial - ${selectedVehiculo.marca} ${selectedVehiculo.modelo} (${selectedVehiculo.placa})`}
+          <Card
+            title={`Historial - ${selectedVehiculo.marca} ${selectedVehiculo.modelo} (${selectedVehiculo.placa})`}
             className="mb-6"
           >
             <div style={{ marginBottom: "1rem" }}>
@@ -217,7 +271,8 @@ function HistorialMantenimiento() {
                 variant="secondary"
                 onClick={() => setSelectedVehiculo(null)}
               >
-                ⬅️ Volver a Lista
+                <FiArrowLeft size={16} />
+                <span>Volver a la lista</span>
               </Button>
             </div>
             
@@ -268,16 +323,26 @@ function HistorialMantenimiento() {
                         borderRadius: "8px",
                         textAlign: "center"
                       }}>
-                        <div style={{ fontSize: "1.5rem", fontWeight: "700", color: "#f59e0b" }}>
-                          📅
+                        <div style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: "2.5rem",
+                          height: "2.5rem",
+                          borderRadius: "999px",
+                          backgroundColor: "rgba(245, 158, 11, 0.15)",
+                          color: "#f59e0b",
+                          marginBottom: "0.5rem"
+                        }}>
+                          <FiCalendar size={18} />
                         </div>
                         <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
-                          Último: {new Date(stats.ultimoServicio.fecha_hora).toLocaleDateString('es-ES')}
+                          Último servicio: {new Date(stats.ultimoServicio.fecha_hora).toLocaleDateString('es-ES')}
                         </div>
                       </div>
                     )}
                   </div>
-                  
+
                   <Table
                     data={historialVehiculo}
                     columns={columns}
@@ -289,7 +354,7 @@ function HistorialMantenimiento() {
             })()}
           </Card>
         ) : (
-          <Card title="📋 Historial Completo">
+          <Card title="Historial completo">
             <Table
               data={historial}
               columns={columns}
