@@ -1,3 +1,4 @@
+import { FiArrowUpRight, FiCalendar, FiClipboard, FiInfo, FiTruck, FiUser } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 
@@ -9,8 +10,17 @@ function DashboardCliente() {
       <Menu />
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", marginBottom: "0.5rem" }}>
-          👤 Mi Panel de Cliente
+        <h1 style={{
+          fontSize: "2rem",
+          fontWeight: "700",
+          color: "#1e293b",
+          marginBottom: "0.5rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem"
+        }}>
+          <FiUser size={26} color="#2563eb" />
+          <span>Panel del cliente</span>
         </h1>
         <p style={{ color: "#64748b", marginBottom: "2rem" }}>
           {user?.nombre ? `Hola, ${user.nombre}. ` : ""}Aquí podrás gestionar tus citas y vehículos.
@@ -29,8 +39,17 @@ function DashboardCliente() {
             boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
             border: "1px solid #e2e8f0"
           }}>
-            <h3 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#1e293b", marginBottom: "1rem" }}>
-              📅 Mis Citas
+            <h3 style={{
+              fontSize: "1.25rem",
+              fontWeight: "600",
+              color: "#1e293b",
+              marginBottom: "1rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem"
+            }}>
+              <FiCalendar size={20} color="#2563eb" />
+              <span>Mis citas</span>
             </h3>
             <div style={{ fontSize: "2rem", fontWeight: "700", color: "#3b82f6", marginBottom: "0.5rem" }}>
               2
@@ -47,8 +66,17 @@ function DashboardCliente() {
             boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
             border: "1px solid #e2e8f0"
           }}>
-            <h3 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#1e293b", marginBottom: "1rem" }}>
-              🚗 Mis Vehículos
+            <h3 style={{
+              fontSize: "1.25rem",
+              fontWeight: "600",
+              color: "#1e293b",
+              marginBottom: "1rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem"
+            }}>
+              <FiTruck size={20} color="#10b981" />
+              <span>Mis vehículos</span>
             </h3>
             <div style={{ fontSize: "2rem", fontWeight: "700", color: "#10b981", marginBottom: "0.5rem" }}>
               1
@@ -65,8 +93,17 @@ function DashboardCliente() {
             boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
             border: "1px solid #e2e8f0"
           }}>
-            <h3 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#1e293b", marginBottom: "1rem" }}>
-              📋 Historial
+            <h3 style={{
+              fontSize: "1.25rem",
+              fontWeight: "600",
+              color: "#1e293b",
+              marginBottom: "1rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem"
+            }}>
+              <FiClipboard size={20} color="#8b5cf6" />
+              <span>Historial</span>
             </h3>
             <div style={{ fontSize: "2rem", fontWeight: "700", color: "#8b5cf6", marginBottom: "0.5rem" }}>
               8
@@ -84,8 +121,17 @@ function DashboardCliente() {
           boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
           border: "1px solid #e2e8f0"
         }}>
-          <h3 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#1e293b", marginBottom: "1rem" }}>
-            🚀 Acciones Rápidas
+          <h3 style={{
+            fontSize: "1.25rem",
+            fontWeight: "600",
+            color: "#1e293b",
+            marginBottom: "1rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem"
+          }}>
+            <FiArrowUpRight size={20} color="#2563eb" />
+            <span>Accesos directos</span>
           </h3>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
             <button
@@ -98,10 +144,14 @@ function DashboardCliente() {
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontSize: "0.875rem",
-                fontWeight: "600"
+                fontWeight: "600",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem"
               }}
             >
-              📅 Mis Citas
+              <FiCalendar size={18} />
+              <span>Mis citas</span>
             </button>
             <button
               onClick={() => window.location.href = "/vehiculos"}
@@ -113,10 +163,14 @@ function DashboardCliente() {
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontSize: "0.875rem",
-                fontWeight: "600"
+                fontWeight: "600",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem"
               }}
             >
-              🚗 Mis Vehículos
+              <FiTruck size={18} />
+              <span>Mis vehículos</span>
             </button>
             <button
               onClick={() => window.location.href = "/historial"}
@@ -128,10 +182,14 @@ function DashboardCliente() {
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontSize: "0.875rem",
-                fontWeight: "600"
+                fontWeight: "600",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem"
               }}
             >
-              📋 Historial
+              <FiClipboard size={18} />
+              <span>Historial</span>
             </button>
             <button
               onClick={() => window.location.href = "/calendario"}
@@ -143,10 +201,14 @@ function DashboardCliente() {
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontSize: "0.875rem",
-                fontWeight: "600"
+                fontWeight: "600",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem"
               }}
             >
-              📆 Calendario
+              <FiCalendar size={18} />
+              <span>Calendario</span>
             </button>
           </div>
         </div>
@@ -158,8 +220,17 @@ function DashboardCliente() {
           border: "1px solid #bae6fd",
           marginTop: "2rem"
         }}>
-          <h4 style={{ fontSize: "1rem", fontWeight: "600", color: "#0369a1", marginBottom: "0.5rem" }}>
-            💡 Información Importante
+          <h4 style={{
+            fontSize: "1rem",
+            fontWeight: "600",
+            color: "#0369a1",
+            marginBottom: "0.5rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem"
+          }}>
+            <FiInfo size={18} />
+            <span>Información importante</span>
           </h4>
           <p style={{ fontSize: "0.875rem", color: "#0369a1", margin: 0, lineHeight: "1.5" }}>
             Como cliente, puedes gestionar tus vehículos, programar citas de mantenimiento y revisar el historial de servicios. 

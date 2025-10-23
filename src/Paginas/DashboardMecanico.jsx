@@ -1,3 +1,4 @@
+import { FiArrowUpRight, FiCalendar, FiCheckCircle, FiClock, FiTool } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 
@@ -9,8 +10,17 @@ function DashboardMecanico() {
       <Menu />
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", marginBottom: "0.5rem" }}>
-          🔧 Panel del Mecánico
+        <h1 style={{
+          fontSize: "2rem",
+          fontWeight: "700",
+          color: "#1e293b",
+          marginBottom: "0.5rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem"
+        }}>
+          <FiTool size={26} color="#2563eb" />
+          <span>Panel del mecánico</span>
         </h1>
         <p style={{ color: "#64748b", marginBottom: "2rem" }}>
           {user?.nombre ? `Listo para trabajar, ${user.nombre}? ` : ""}Aquí encontrarás tus próximas tareas.
@@ -29,8 +39,17 @@ function DashboardMecanico() {
             boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
             border: "1px solid #e2e8f0"
           }}>
-            <h3 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#1e293b", marginBottom: "1rem" }}>
-              📅 Mis Citas de Hoy
+            <h3 style={{
+              fontSize: "1.25rem",
+              fontWeight: "600",
+              color: "#1e293b",
+              marginBottom: "1rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem"
+            }}>
+              <FiCalendar size={20} color="#2563eb" />
+              <span>Mis citas de hoy</span>
             </h3>
             <div style={{ fontSize: "2rem", fontWeight: "700", color: "#3b82f6", marginBottom: "0.5rem" }}>
               3
@@ -47,8 +66,17 @@ function DashboardMecanico() {
             boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
             border: "1px solid #e2e8f0"
           }}>
-            <h3 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#1e293b", marginBottom: "1rem" }}>
-              ✅ Servicios Completados
+            <h3 style={{
+              fontSize: "1.25rem",
+              fontWeight: "600",
+              color: "#1e293b",
+              marginBottom: "1rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem"
+            }}>
+              <FiCheckCircle size={20} color="#10b981" />
+              <span>Servicios completados</span>
             </h3>
             <div style={{ fontSize: "2rem", fontWeight: "700", color: "#10b981", marginBottom: "0.5rem" }}>
               12
@@ -65,8 +93,17 @@ function DashboardMecanico() {
             boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
             border: "1px solid #e2e8f0"
           }}>
-            <h3 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#1e293b", marginBottom: "1rem" }}>
-              ⏳ Pendientes
+            <h3 style={{
+              fontSize: "1.25rem",
+              fontWeight: "600",
+              color: "#1e293b",
+              marginBottom: "1rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem"
+            }}>
+              <FiClock size={20} color="#f59e0b" />
+              <span>Servicios pendientes</span>
             </h3>
             <div style={{ fontSize: "2rem", fontWeight: "700", color: "#f59e0b", marginBottom: "0.5rem" }}>
               5
@@ -84,8 +121,17 @@ function DashboardMecanico() {
           boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
           border: "1px solid #e2e8f0"
         }}>
-          <h3 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#1e293b", marginBottom: "1rem" }}>
-            🚀 Acciones Rápidas
+          <h3 style={{
+            fontSize: "1.25rem",
+            fontWeight: "600",
+            color: "#1e293b",
+            marginBottom: "1rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem"
+          }}>
+            <FiArrowUpRight size={20} color="#2563eb" />
+            <span>Accesos directos</span>
           </h3>
           <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
             <button
@@ -98,10 +144,14 @@ function DashboardMecanico() {
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontSize: "0.875rem",
-                fontWeight: "600"
+                fontWeight: "600",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem"
               }}
             >
-              📅 Ver Mis Citas
+              <FiCalendar size={18} />
+              <span>Ver mis citas</span>
             </button>
             <button
               onClick={() => window.location.href = "/calendario"}
@@ -113,10 +163,14 @@ function DashboardMecanico() {
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontSize: "0.875rem",
-                fontWeight: "600"
+                fontWeight: "600",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem"
               }}
             >
-              📆 Calendario
+              <FiClock size={18} />
+              <span>Calendario</span>
             </button>
             <button
               onClick={() => window.location.href = "/servicios"}
@@ -128,10 +182,14 @@ function DashboardMecanico() {
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontSize: "0.875rem",
-                fontWeight: "600"
+                fontWeight: "600",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem"
               }}
             >
-              🔧 Servicios
+              <FiTool size={18} />
+              <span>Servicios</span>
             </button>
           </div>
         </div>

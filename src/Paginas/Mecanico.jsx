@@ -1,4 +1,12 @@
 import { useState, useEffect } from "react";
+import {
+  FiBarChart2,
+  FiCalendar,
+  FiCheckCircle,
+  FiClock,
+  FiMessageCircle,
+  FiTool
+} from "react-icons/fi";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import { citasService } from "../Servicios/api";
@@ -80,8 +88,17 @@ function Mecanico() {
       <Menu />
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", marginBottom: "0.5rem" }}>
-          🔧 Panel del Mecánico
+        <h1 style={{
+          fontSize: "2rem",
+          fontWeight: "700",
+          color: "#1e293b",
+          marginBottom: "0.5rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem"
+        }}>
+          <FiTool size={26} color="#2563eb" />
+          <span>Panel del mecánico</span>
         </h1>
         {loading && (
           <p style={{ color: "#64748b", marginBottom: "1.5rem" }}>Cargando citas asignadas...</p>
@@ -95,55 +112,105 @@ function Mecanico() {
           marginBottom: "2rem"
         }}>
           <Card>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "2rem", fontWeight: "700", color: "#3b82f6", marginBottom: "0.5rem" }}>
-                📅 {stats.citasHoy}
-              </div>
-              <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
-                Citas Hoy
-              </div>
-            </div>
-          </Card>
-          
-          <Card>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "2rem", fontWeight: "700", color: "#10b981", marginBottom: "0.5rem" }}>
-                ✅ {stats.citasCompletadas}
-              </div>
-              <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
-                Completadas
-              </div>
-            </div>
-          </Card>
-          
-          <Card>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "2rem", fontWeight: "700", color: "#f59e0b", marginBottom: "0.5rem" }}>
-                ⏳ {stats.citasPendientes}
-              </div>
-              <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
-                Pendientes
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
+              <span style={{
+                width: "3rem",
+                height: "3rem",
+                borderRadius: "999px",
+                backgroundColor: "rgba(59, 130, 246, 0.12)",
+                color: "#3b82f6",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <FiCalendar size={22} />
+              </span>
+              <div>
+                <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#1e293b", lineHeight: 1 }}>
+                  {stats.citasHoy}
+                </div>
+                <div style={{ fontSize: "0.875rem", color: "#64748b" }}>Citas hoy</div>
               </div>
             </div>
           </Card>
-          
+
           <Card>
-            <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "2rem", fontWeight: "700", color: "#8b5cf6", marginBottom: "0.5rem" }}>
-                📊 {stats.citasSemana}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
+              <span style={{
+                width: "3rem",
+                height: "3rem",
+                borderRadius: "999px",
+                backgroundColor: "rgba(16, 185, 129, 0.12)",
+                color: "#10b981",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <FiCheckCircle size={22} />
+              </span>
+              <div>
+                <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#1e293b", lineHeight: 1 }}>
+                  {stats.citasCompletadas}
+                </div>
+                <div style={{ fontSize: "0.875rem", color: "#64748b" }}>Completadas</div>
               </div>
-              <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
-                Esta Semana
+            </div>
+          </Card>
+
+          <Card>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
+              <span style={{
+                width: "3rem",
+                height: "3rem",
+                borderRadius: "999px",
+                backgroundColor: "rgba(245, 158, 11, 0.15)",
+                color: "#f59e0b",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <FiClock size={22} />
+              </span>
+              <div>
+                <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#1e293b", lineHeight: 1 }}>
+                  {stats.citasPendientes}
+                </div>
+                <div style={{ fontSize: "0.875rem", color: "#64748b" }}>Pendientes</div>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
+              <span style={{
+                width: "3rem",
+                height: "3rem",
+                borderRadius: "999px",
+                backgroundColor: "rgba(139, 92, 246, 0.12)",
+                color: "#8b5cf6",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <FiBarChart2 size={22} />
+              </span>
+              <div>
+                <div style={{ fontSize: "1.75rem", fontWeight: "700", color: "#1e293b", lineHeight: 1 }}>
+                  {stats.citasSemana}
+                </div>
+                <div style={{ fontSize: "0.875rem", color: "#64748b" }}>Esta semana</div>
               </div>
             </div>
           </Card>
         </div>
 
         {/* Citas de hoy */}
-        <Card title="📅 Citas de Hoy" className="mb-6">
+        <Card title="Citas de hoy" className="mb-6">
           {citasHoy.length === 0 ? (
             <div style={{ textAlign: "center", padding: "2rem", color: "#64748b" }}>
-              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>😴</div>
+              <div style={{ fontSize: "3rem", marginBottom: "1rem", color: "#cbd5f5" }}>
+                <FiCalendar size={48} />
+              </div>
               <div>No tienes citas programadas para hoy</div>
             </div>
           ) : (
@@ -166,8 +233,15 @@ function Mecanico() {
                       <div style={{ fontSize: "0.875rem", color: "#64748b", marginBottom: "0.5rem" }}>
                         {cita.vehiculo_info || "Vehículo"} - {cita.servicio_nombre || "Servicio"}
                       </div>
-                      <div style={{ fontSize: "0.875rem", color: "#64748b" }}>
-                        🕐 {cita.fecha_hora ? new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                      <div style={{
+                        fontSize: "0.875rem",
+                        color: "#64748b",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.35rem"
+                      }}>
+                        <FiClock size={16} />
+                        <span>{cita.fecha_hora ? new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}</span>
                       </div>
                     </div>
                     <div>
@@ -184,8 +258,19 @@ function Mecanico() {
                     </div>
                   </div>
                   {cita.observaciones && (
-                    <div style={{ marginTop: "0.75rem", fontSize: "0.875rem", color: "#64748b", fontStyle: "italic" }}>
-                      💬 {cita.observaciones}
+                    <div
+                      style={{
+                        marginTop: "0.75rem",
+                        fontSize: "0.875rem",
+                        color: "#64748b",
+                        fontStyle: "italic",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.35rem"
+                      }}
+                    >
+                      <FiMessageCircle size={16} />
+                      <span>{cita.observaciones}</span>
                     </div>
                   )}
                 </div>
@@ -195,10 +280,12 @@ function Mecanico() {
         </Card>
 
         {/* Próximas citas */}
-        <Card title="📋 Próximas Citas">
+        <Card title="Próximas citas">
           {citas.length === 0 ? (
             <div style={{ textAlign: "center", padding: "2rem", color: "#64748b" }}>
-              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📅</div>
+              <div style={{ fontSize: "3rem", marginBottom: "1rem", color: "#cbd5f5" }}>
+                <FiCalendar size={48} />
+              </div>
               <div>No hay citas programadas</div>
             </div>
           ) : (

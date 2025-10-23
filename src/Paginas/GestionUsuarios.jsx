@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FiEdit, FiPlus, FiSave, FiTrash2, FiUser, FiX } from "react-icons/fi";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -172,14 +173,16 @@ function GestionUsuarios() {
             size="sm"
             onClick={() => handleEdit(usuario)}
           >
-            ✏️ Editar
+            <FiEdit size={16} />
+            <span>Editar</span>
           </Button>
           <Button
             variant="danger"
             size="sm"
             onClick={() => handleDelete(usuario.id)}
           >
-            🗑️ Eliminar
+            <FiTrash2 size={16} />
+            <span>Eliminar</span>
           </Button>
         </div>
       )
@@ -192,8 +195,19 @@ function GestionUsuarios() {
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-          <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", margin: 0 }}>
-            👥 Gestión de Usuarios
+          <h1
+            style={{
+              fontSize: "2rem",
+              fontWeight: "700",
+              color: "#1e293b",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem"
+            }}
+          >
+            <FiUser size={26} color="#2563eb" />
+            <span>Gestión de usuarios</span>
           </h1>
           <Button
             onClick={() => {
@@ -205,7 +219,8 @@ function GestionUsuarios() {
               setNewUserCredentials(null);
             }}
           >
-            ➕ Nuevo Usuario
+            <FiPlus size={16} />
+            <span>Nuevo usuario</span>
           </Button>
         </div>
 
@@ -345,7 +360,17 @@ function GestionUsuarios() {
 
               <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                 <Button type="submit">
-                  {editingUsuario ? "💾 Actualizar" : "➕ Crear"}
+                  {editingUsuario ? (
+                    <>
+                      <FiSave size={16} />
+                      <span>Actualizar</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiPlus size={16} />
+                      <span>Crear</span>
+                    </>
+                  )}
                 </Button>
                 <Button
                   type="button"
@@ -359,7 +384,8 @@ function GestionUsuarios() {
                     setNewUserCredentials(null);
                   }}
                 >
-                  ❌ Cancelar
+                  <FiX size={16} />
+                  <span>Cancelar</span>
                 </Button>
               </div>
             </form>

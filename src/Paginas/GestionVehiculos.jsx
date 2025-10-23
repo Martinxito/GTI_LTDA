@@ -1,4 +1,15 @@
 import { useState, useEffect, useContext, useCallback } from "react";
+import {
+  FiCalendar,
+  FiDroplet,
+  FiEdit,
+  FiPlus,
+  FiSave,
+  FiTag,
+  FiTrash2,
+  FiTruck,
+  FiX
+} from "react-icons/fi";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -138,14 +149,16 @@ function GestionVehiculos() {
               size="sm"
               onClick={() => handleEdit(vehiculo)}
             >
-              ✏️ Editar
+              <FiEdit size={16} />
+              <span>Editar</span>
             </Button>
             <Button
               variant="danger"
               size="sm"
               onClick={() => handleDelete(vehiculo.id)}
             >
-              🗑️ Eliminar
+              <FiTrash2 size={16} />
+              <span>Eliminar</span>
             </Button>
           </div>
         )
@@ -170,10 +183,14 @@ function GestionVehiculos() {
               fontSize: "2rem",
               fontWeight: "700",
               color: "#1e293b",
-              margin: 0
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem"
             }}
           >
-            🚗 Gestión de Vehículos
+            <FiTruck size={26} color="#2563eb" />
+            <span>Gestión de vehículos</span>
           </h1>
           {user.rol === "jefe_taller" && (
             <Button
@@ -190,7 +207,8 @@ function GestionVehiculos() {
                 });
               }}
             >
-              ➕ Nuevo Vehículo
+              <FiPlus size={16} />
+              <span>Nuevo vehículo</span>
             </Button>
           )}
         </div>
@@ -292,7 +310,17 @@ function GestionVehiculos() {
 
               <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                 <Button type="submit">
-                  {editingVehiculo ? "💾 Actualizar" : "➕ Crear"}
+                  {editingVehiculo ? (
+                    <>
+                      <FiSave size={16} />
+                      <span>Actualizar</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiPlus size={16} />
+                      <span>Crear</span>
+                    </>
+                  )}
                 </Button>
                 <Button
                   type="button"
@@ -310,7 +338,8 @@ function GestionVehiculos() {
                     });
                   }}
                 >
-                  ❌ Cancelar
+                  <FiX size={16} />
+                  <span>Cancelar</span>
                 </Button>
               </div>
             </form>

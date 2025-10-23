@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FiCalendar, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -107,15 +108,27 @@ function CalendarioCitas() {
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-          <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", margin: 0 }}>
-            📆 Calendario de Citas
+          <h1
+            style={{
+              fontSize: "2rem",
+              fontWeight: "700",
+              color: "#1e293b",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem"
+            }}
+          >
+            <FiCalendar size={26} color="#2563eb" />
+            <span>Calendario de citas</span>
           </h1>
           <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
             <Button
               variant="secondary"
               onClick={() => navigateMonth(-1)}
             >
-              ⬅️ Anterior
+              <FiChevronLeft size={16} />
+              <span>Anterior</span>
             </Button>
             <div style={{ fontSize: "1.25rem", fontWeight: "600", color: "#1e293b", minWidth: "200px", textAlign: "center" }}>
               {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
@@ -124,7 +137,8 @@ function CalendarioCitas() {
               variant="secondary"
               onClick={() => navigateMonth(1)}
             >
-              Siguiente ➡️
+              <span>Siguiente</span>
+              <FiChevronRight size={16} />
             </Button>
           </div>
         </div>

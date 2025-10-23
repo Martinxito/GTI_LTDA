@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FiEdit, FiPlus, FiSave, FiTool, FiTrash2, FiX } from "react-icons/fi";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -127,14 +128,16 @@ function GestionServicios() {
             size="sm"
             onClick={() => handleEdit(servicio)}
           >
-            ✏️ Editar
+            <FiEdit size={16} />
+            <span>Editar</span>
           </Button>
           <Button
             variant="danger"
             size="sm"
             onClick={() => handleDelete(servicio.id)}
           >
-            🗑️ Eliminar
+            <FiTrash2 size={16} />
+            <span>Eliminar</span>
           </Button>
         </div>
       )
@@ -147,8 +150,19 @@ function GestionServicios() {
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-          <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", margin: 0 }}>
-            🔧 Gestión de Servicios
+          <h1
+            style={{
+              fontSize: "2rem",
+              fontWeight: "700",
+              color: "#1e293b",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem"
+            }}
+          >
+            <FiTool size={26} color="#2563eb" />
+            <span>Gestión de servicios</span>
           </h1>
           <Button
             onClick={() => {
@@ -157,7 +171,8 @@ function GestionServicios() {
               setFormData({ nombre: "", descripcion: "", precio_base: "", categoria: "", duracion_estimada: "" });
             }}
           >
-            ➕ Nuevo Servicio
+            <FiPlus size={16} />
+            <span>Nuevo servicio</span>
           </Button>
         </div>
 
@@ -251,7 +266,17 @@ function GestionServicios() {
               
               <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                 <Button type="submit">
-                  {editingServicio ? "💾 Actualizar" : "➕ Crear"}
+                  {editingServicio ? (
+                    <>
+                      <FiSave size={16} />
+                      <span>Actualizar</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiPlus size={16} />
+                      <span>Crear</span>
+                    </>
+                  )}
                 </Button>
                 <Button
                   type="button"
@@ -262,7 +287,8 @@ function GestionServicios() {
                     setFormData({ nombre: "", descripcion: "", precio_base: "", categoria: "", duracion_estimada: "" });
                   }}
                 >
-                  ❌ Cancelar
+                  <FiX size={16} />
+                  <span>Cancelar</span>
                 </Button>
               </div>
             </form>
