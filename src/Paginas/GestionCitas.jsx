@@ -1,4 +1,12 @@
 import { useState, useEffect } from "react";
+import {
+  FiCalendar,
+  FiEdit,
+  FiPlus,
+  FiSave,
+  FiTrash2,
+  FiX
+} from "react-icons/fi";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
@@ -201,14 +209,16 @@ function GestionCitas() {
             size="sm"
             onClick={() => handleEdit(cita)}
           >
-            ✏️ Editar
+            <FiEdit size={16} />
+            <span>Editar</span>
           </Button>
           <Button
             variant="danger"
             size="sm"
             onClick={() => handleDelete(cita.id)}
           >
-            🗑️ Eliminar
+            <FiTrash2 size={16} />
+            <span>Eliminar</span>
           </Button>
         </div>
       )
@@ -221,8 +231,19 @@ function GestionCitas() {
       
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-          <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", margin: 0 }}>
-            📅 Gestión de Citas
+          <h1
+            style={{
+              fontSize: "2rem",
+              fontWeight: "700",
+              color: "#1e293b",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem"
+            }}
+          >
+            <FiCalendar size={26} color="#2563eb" />
+            <span>Gestión de citas</span>
           </h1>
           <Button
             onClick={() => {
@@ -231,7 +252,8 @@ function GestionCitas() {
               setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_hora: "", estado: "programada", observaciones: "" });
             }}
           >
-            ➕ Nueva Cita
+            <FiPlus size={16} />
+            <span>Nueva cita</span>
           </Button>
         </div>
 
@@ -415,7 +437,17 @@ function GestionCitas() {
               
               <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                 <Button type="submit">
-                  {editingCita ? "💾 Actualizar" : "➕ Crear"}
+                  {editingCita ? (
+                    <>
+                      <FiSave size={16} />
+                      <span>Actualizar</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiPlus size={16} />
+                      <span>Crear</span>
+                    </>
+                  )}
                 </Button>
                 <Button
                   type="button"
@@ -426,7 +458,8 @@ function GestionCitas() {
                     setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_hora: "", estado: "programada", observaciones: "" });
                   }}
                 >
-                  ❌ Cancelar
+                  <FiX size={16} />
+                  <span>Cancelar</span>
                 </Button>
               </div>
             </form>

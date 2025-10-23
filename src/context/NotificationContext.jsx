@@ -1,4 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import {
+  FiAlertTriangle,
+  FiBell,
+  FiCalendar,
+  FiClock,
+  FiInfo
+} from "react-icons/fi";
 import { citasService, inventarioService } from '../Servicios/api';
 
 const NotificationContext = createContext();
@@ -37,20 +44,15 @@ export function NotificationProvider({ children }) {
 
   // Iconos para cada tipo de notificación
   const getNotificationIcon = (type) => {
-    switch (type) {
-      case NOTIFICATION_TYPES.STOCK_LOW:
-        return '⚠️';
-      case NOTIFICATION_TYPES.APPOINTMENT_REMINDER:
-        return '🔔';
-      case NOTIFICATION_TYPES.APPOINTMENT_TODAY:
-        return '📅';
-      case NOTIFICATION_TYPES.APPOINTMENT_OVERDUE:
-        return '⏰';
-      case NOTIFICATION_TYPES.SYSTEM:
-        return 'ℹ️';
-      default:
-        return '🔔';
-    }
+    const iconMap = {
+      [NOTIFICATION_TYPES.STOCK_LOW]: FiAlertTriangle,
+      [NOTIFICATION_TYPES.APPOINTMENT_REMINDER]: FiBell,
+      [NOTIFICATION_TYPES.APPOINTMENT_TODAY]: FiCalendar,
+      [NOTIFICATION_TYPES.APPOINTMENT_OVERDUE]: FiClock,
+      [NOTIFICATION_TYPES.SYSTEM]: FiInfo,
+    };
+
+    return iconMap[type] || FiBell;
   };
 
   // Eliminar notificación

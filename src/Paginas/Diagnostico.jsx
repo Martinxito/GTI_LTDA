@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FiPlayCircle, FiRefreshCcw, FiTool } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import Menu from "../components/Menu";
 import Card from "../components/ui/Card";
@@ -20,45 +21,45 @@ function Diagnostico() {
       // Probar autenticación
       try {
         const token = localStorage.getItem('token');
-        resultados.auth = token ? "✅ Token encontrado" : "❌ No hay token";
+        resultados.auth = token ? "Autenticación: token encontrado" : "Autenticación: no se encontró token";
       } catch (error) {
-        resultados.auth = `❌ Error auth: ${error.message}`;
+        resultados.auth = `Autenticación: error - ${error.message}`;
       }
 
       // Probar usuarios
       try {
         const usuarios = await usuariosService.getAll();
-        resultados.usuarios = `✅ Usuarios: ${Array.isArray(usuarios) ? usuarios.length : 'No es array'}`;
+        resultados.usuarios = `Usuarios: ${Array.isArray(usuarios) ? usuarios.length : 'No es array'}`;
       } catch (error) {
-        resultados.usuarios = `❌ Error usuarios: ${error.message}`;
+        resultados.usuarios = `Usuarios: error - ${error.message}`;
       }
 
       // Probar vehículos
       try {
         const vehiculos = await vehiculosService.getAll();
-        resultados.vehiculos = `✅ Vehículos: ${Array.isArray(vehiculos) ? vehiculos.length : 'No es array'}`;
+        resultados.vehiculos = `Vehículos: ${Array.isArray(vehiculos) ? vehiculos.length : 'No es array'}`;
       } catch (error) {
-        resultados.vehiculos = `❌ Error vehículos: ${error.message}`;
+        resultados.vehiculos = `Vehículos: error - ${error.message}`;
       }
 
       // Probar servicios
       try {
         const servicios = await serviciosService.getAll();
-        resultados.servicios = `✅ Servicios: ${Array.isArray(servicios) ? servicios.length : 'No es array'}`;
+        resultados.servicios = `Servicios: ${Array.isArray(servicios) ? servicios.length : 'No es array'}`;
       } catch (error) {
-        resultados.servicios = `❌ Error servicios: ${error.message}`;
+        resultados.servicios = `Servicios: error - ${error.message}`;
       }
 
       // Probar citas
       try {
         const citas = await citasService.getAll();
-        resultados.citas = `✅ Citas: ${Array.isArray(citas) ? citas.length : 'No es array'}`;
+        resultados.citas = `Citas: ${Array.isArray(citas) ? citas.length : 'No es array'}`;
       } catch (error) {
-        resultados.citas = `❌ Error citas: ${error.message}`;
+        resultados.citas = `Citas: error - ${error.message}`;
       }
 
     } catch (error) {
-      resultados.error = `❌ Error general: ${error.message}`;
+      resultados.error = `Diagnóstico general: error - ${error.message}`;
     }
 
     setDiagnostico(resultados);
@@ -69,8 +70,19 @@ function Diagnostico() {
     <div>
       <Menu />
       <div style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: "700", color: "#1e293b", marginBottom: "2rem" }}>
-          🔧 Diagnóstico del Sistema
+        <h1
+          style={{
+            fontSize: "2rem",
+            fontWeight: "700",
+            color: "#1e293b",
+            marginBottom: "2rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem"
+          }}
+        >
+          <FiTool size={26} color="#2563eb" />
+          <span>Diagnóstico del sistema</span>
         </h1>
         
         <Card>
@@ -89,12 +101,22 @@ function Diagnostico() {
             </div>
           </div>
           
-          <Button 
-            onClick={ejecutarDiagnostico} 
+          <Button
+            onClick={ejecutarDiagnostico}
             disabled={loading}
             style={{ marginBottom: "1rem" }}
           >
-            {loading ? "🔄 Ejecutando..." : "🔍 Ejecutar Diagnóstico"}
+            {loading ? (
+              <>
+                <FiRefreshCcw size={16} />
+                <span>Ejecutando...</span>
+              </>
+            ) : (
+              <>
+                <FiPlayCircle size={16} />
+                <span>Ejecutar diagnóstico</span>
+              </>
+            )}
           </Button>
           
           {Object.keys(diagnostico).length > 0 && (

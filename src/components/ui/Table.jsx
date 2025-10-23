@@ -1,90 +1,31 @@
-import React from 'react';
-
-const Table = ({ 
-  columns, 
-  data, 
-  loading = false, 
+const Table = ({
+  columns,
+  data,
+  loading = false,
   emptyMessage = 'No hay datos disponibles',
   className = '',
-  ...props 
+  ...props
 }) => {
-  const tableStyles = {
-    width: '100%',
-    borderCollapse: 'collapse',
-    backgroundColor: 'var(--bg-primary)',
-    borderRadius: 'var(--border-radius)',
-    overflow: 'hidden',
-    boxShadow: 'var(--shadow-sm)',
-  };
-
-  const headerStyles = {
-    backgroundColor: 'var(--bg-tertiary)',
-    borderBottom: '1px solid var(--border-color)',
-  };
-
-  const headerCellStyles = {
-    padding: 'var(--spacing-md) var(--spacing-lg)',
-    textAlign: 'left',
-    fontSize: 'var(--font-size-sm)',
-    fontWeight: '600',
-    color: 'var(--text-primary)',
-    borderBottom: '1px solid var(--border-color)',
-  };
-
-  const cellStyles = {
-    padding: 'var(--spacing-md) var(--spacing-lg)',
-    fontSize: 'var(--font-size-sm)',
-    color: 'var(--text-primary)',
-    borderBottom: '1px solid var(--border-color)',
-  };
-
-  const rowStyles = {
-    transition: 'var(--transition-fast)',
-    '&:hover': {
-      backgroundColor: 'var(--bg-secondary)',
-    },
-  };
-
-  const loadingStyles = {
-    padding: 'var(--spacing-2xl)',
-    textAlign: 'center',
-    color: 'var(--text-secondary)',
-  };
-
-  const emptyStyles = {
-    padding: 'var(--spacing-2xl)',
-    textAlign: 'center',
-    color: 'var(--text-muted)',
-    fontStyle: 'italic',
-  };
+  const tableClassName = ['data-table', className].filter(Boolean).join(' ');
 
   if (loading) {
     return (
-      <div style={loadingStyles}>
-        <div style={{
-          display: 'inline-block',
-          width: '2rem',
-          height: '2rem',
-          border: '3px solid var(--border-color)',
-          borderTop: '3px solid var(--primary-color)',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-          marginBottom: 'var(--spacing-md)',
-        }} />
+      <div className="data-table__loading" role="status" aria-live="polite">
+        <span className="data-table__spinner" aria-hidden="true" />
         <p>Cargando datos...</p>
       </div>
     );
   }
 
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={tableStyles} className={className} {...props}>
-        <thead style={headerStyles}>
+    <div className="data-table__container">
+      <table className={tableClassName} {...props}>
+        <thead>
           <tr>
             {columns.map((column, index) => {
               const headerLabel = column.header ?? column.label ?? column.key;
               return (
-                <th key={index} style={headerCellStyles}>
+                <th key={index}>
                   {headerLabel}
                 </th>
               );
@@ -94,19 +35,19 @@ const Table = ({
         <tbody>
           {data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} style={emptyStyles}>
+              <td colSpan={columns.length} className="data-table__empty">
                 {emptyMessage}
               </td>
             </tr>
           ) : (
             data.map((row, rowIndex) => (
-              <tr key={rowIndex} style={rowStyles}>
+              <tr key={rowIndex}>
                 {columns.map((column, colIndex) => {
                   const cellContent = column.render
                     ? column.render(row, column)
                     : row?.[column.key];
                   return (
-                    <td key={colIndex} style={cellStyles}>
+                    <td key={colIndex}>
                       {cellContent}
                     </td>
                   );

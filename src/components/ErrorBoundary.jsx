@@ -1,4 +1,5 @@
 import React from 'react';
+import { FiAlertTriangle, FiHome, FiRefreshCcw } from "react-icons/fi";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -42,9 +43,10 @@ class ErrorBoundary extends React.Component {
           }}>
             <div style={{
               fontSize: "4rem",
-              marginBottom: "1rem"
+              marginBottom: "1rem",
+              color: "#f97316"
             }}>
-              ⚠️
+              <FiAlertTriangle size={56} />
             </div>
             
             <h1 style={{
@@ -76,12 +78,16 @@ class ErrorBoundary extends React.Component {
                   borderRadius: "8px",
                   cursor: "pointer",
                   fontSize: "0.875rem",
-                  fontWeight: "600"
+                  fontWeight: "600",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem"
                 }}
               >
-                🔄 Recargar Página
+                <FiRefreshCcw size={16} />
+                <span>Recargar página</span>
               </button>
-              
+
               <button
                 onClick={() => window.location.href = "/"}
                 style={{
@@ -92,10 +98,14 @@ class ErrorBoundary extends React.Component {
                   borderRadius: "8px",
                   cursor: "pointer",
                   fontSize: "0.875rem",
-                  fontWeight: "600"
+                  fontWeight: "600",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem"
                 }}
               >
-                🏠 Ir al Inicio
+                <FiHome size={16} />
+                <span>Ir al inicio</span>
               </button>
             </div>
             
