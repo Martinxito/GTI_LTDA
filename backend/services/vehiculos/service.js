@@ -76,6 +76,14 @@ async function updateVehicle(id, payload) {
     return value;
   };
 
+  const parseInteger = (value, fallback) => {
+    const parsed = Number(value);
+    if (Number.isNaN(parsed)) {
+      return fallback;
+    }
+    return parsed;
+  };
+
   const data = {
     cliente_id: resolveField('cliente_id'),
     marca: resolveField('marca'),
@@ -90,14 +98,12 @@ async function updateVehicle(id, payload) {
     observaciones: resolveField('observaciones')
   };
 
-  if (data.cliente_id !== undefined && data.cliente_id !== null && data.cliente_id !== '') {
-    data.cliente_id = Number(data.cliente_id);
-  }
-  if (data.año !== undefined && data.año !== null && data.año !== '') {
-    data.año = Number(data.año);
-  }
-  if (data.kilometraje !== undefined && data.kilometraje !== null && data.kilometraje !== '') {
-    data.kilometraje = Number(data.kilometraje);
+  data.cliente_id = parseInteger(data.cliente_id, existingVehicle.cliente_id);
+  data.año = parseInteger(data.año, existingVehicle.año);
+  data.kilometraje = parseInteger(data.kilometraje, existingVehicle.kilometraje ?? 0);
+
+  if (!Number.isInteger(data.cliente_id) || !Number.isInteger(data.año) || !Number.isFinite(data.kilometraje)) {
+    throw new ServiceError('Datos numéricos inválidos para actualizar el vehículo', { status: 400 });
   }
 
   if (!data.cliente_id || !data.marca || !data.modelo || !data.año || !data.placa) {
