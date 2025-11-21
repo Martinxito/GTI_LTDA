@@ -3,23 +3,40 @@ const repository = require('./repository');
 const usuariosRepository = require('../identity/repository');
 const historialService = require('../historial/service');
 
-async function listVehicles() {
+function assertClientOwnership(vehicle, user) {
+  if (user?.rol === 'cliente' && Number(vehicle.usuario_id) !== Number(user.id)) {
+    throw new ServiceError('No autorizado para acceder a este vehículo', { status: 403 });
+  }
+}
+
+async function listVehicles(user) {
+  if (user?.rol === 'cliente') {
+    return repository.findVehiclesByUser(user.id);
+  }
+
   return repository.listVehicles();
 }
 
-async function getVehicle(id) {
+async function getVehicle(id, user) {
   const vehicle = await repository.findVehicleById(id);
   if (!vehicle) {
     throw new ServiceError('Vehículo no encontrado', { status: 404 });
   }
+
+  assertClientOwnership(vehicle, user);
+
   return vehicle;
 }
 
-async function listVehiclesByUser(usuarioId) {
+async function listVehiclesByUser(usuarioId, user) {
+  if (user?.rol === 'cliente' && Number(usuarioId) !== Number(user.id)) {
+    throw new ServiceError('No autorizado para consultar vehículos de otros usuarios', { status: 403 });
+  }
+
   return repository.findVehiclesByUser(usuarioId);
 }
 
-async function createVehicle(payload) {
+async function createVehicle(payload, user) {
   const {
     usuario_id,
     marca,
@@ -38,6 +55,10 @@ async function createVehicle(payload) {
 
   if (!ownerId || !marca || !modelo || !año || !placa) {
     throw new ServiceError('Faltan datos obligatorios para registrar el vehículo', { status: 400 });
+  }
+
+  if (user?.rol === 'cliente' && ownerId !== Number(user.id)) {
+    throw new ServiceError('No autorizado para registrar vehículos a otros usuarios', { status: 403 });
   }
 
   if (!Number.isInteger(ownerId) || ownerId <= 0) {
@@ -85,8 +106,8 @@ async function createVehicle(payload) {
   }
 }
 
-async function updateVehicle(id, payload) {
-  const existingVehicle = await getVehicle(id);
+async function updateVehicle(id, payload, user) {
+  const existingVehicle = await getVehicle(id, user);
 
   const resolveField = (field) => {
     const value = payload[field];
@@ -163,14 +184,15 @@ async function updateVehicle(id, payload) {
   }
 }
 
-async function deleteVehicle(id) {
-  await getVehicle(id);
+async function deleteVehicle(id, user) {
+  await getVehicle(id, user);
   await repository.deactivateVehicle(id);
   return { mensaje: 'Vehículo eliminado exitosamente' };
 }
 
-async function getVehicleHistory(id) {
-  await getVehicle(id);
+async function getVehicleHistory(id, user) {
+  const vehicle = await getVehicle(id, user);
+  assertClientOwnership(vehicle, user);
   return historialService.listHistoryByVehicle(id);
 }
 

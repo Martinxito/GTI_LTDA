@@ -23,6 +23,31 @@ async function listAppointments() {
   return rows;
 }
 
+async function listAppointmentsByUser(usuarioId) {
+  const [rows] = await db.query(
+    `SELECT
+       c.*,
+       u.nombre AS usuario_nombre,
+       u.apellido AS usuario_apellido,
+       u.telefono AS usuario_telefono,
+       v.marca AS vehiculo_marca,
+       v.modelo AS vehiculo_modelo,
+       v.placa AS vehiculo_placa,
+       s.nombre AS servicio_nombre,
+       s.precio_base AS servicio_precio,
+       m.nombre AS mecanico_nombre
+     FROM citas c
+     LEFT JOIN usuarios u ON c.usuario_id = u.id
+     LEFT JOIN vehiculos v ON c.vehiculo_id = v.id
+     LEFT JOIN servicios s ON c.servicio_id = s.id
+     LEFT JOIN usuarios m ON c.mecanico_id = m.id
+     WHERE c.usuario_id = $1
+     ORDER BY c.fecha_cita DESC, c.hora_inicio DESC`,
+    [usuarioId]
+  );
+  return rows;
+}
+
 async function listAppointmentsByDate(fecha) {
   const [rows] = await db.query(
     `SELECT
@@ -42,6 +67,29 @@ async function listAppointmentsByDate(fecha) {
      WHERE c.fecha_cita = $1
      ORDER BY c.hora_inicio`,
     [fecha]
+  );
+  return rows;
+}
+
+async function listAppointmentsByDateAndUser(fecha, usuarioId) {
+  const [rows] = await db.query(
+    `SELECT
+       c.*,
+       u.nombre AS usuario_nombre,
+       u.apellido AS usuario_apellido,
+       v.marca AS vehiculo_marca,
+       v.modelo AS vehiculo_modelo,
+       v.placa AS vehiculo_placa,
+       s.nombre AS servicio_nombre,
+       m.nombre AS mecanico_nombre
+     FROM citas c
+     LEFT JOIN usuarios u ON c.usuario_id = u.id
+     LEFT JOIN vehiculos v ON c.vehiculo_id = v.id
+     LEFT JOIN servicios s ON c.servicio_id = s.id
+     LEFT JOIN usuarios m ON c.mecanico_id = m.id
+     WHERE c.fecha_cita = $1 AND c.usuario_id = $2
+     ORDER BY c.hora_inicio`,
+    [fecha, usuarioId]
   );
   return rows;
 }
@@ -172,7 +220,9 @@ async function updateAppointmentNotes(id, observaciones) {
 
 module.exports = {
   listAppointments,
+  listAppointmentsByUser,
   listAppointmentsByDate,
+  listAppointmentsByDateAndUser,
   listAppointmentsByMechanic,
   findAppointmentById,
   insertAppointment,
