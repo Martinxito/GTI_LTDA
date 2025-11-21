@@ -1,6 +1,6 @@
 const { ServiceError } = require('../utils/serviceError');
 const repository = require('./repository');
-const clientesRepository = require('../clientes/repository');
+const usuariosRepository = require('../identity/repository');
 const historialService = require('../historial/service');
 
 async function listVehicles() {
@@ -44,13 +44,13 @@ async function createVehicle(payload) {
     throw new ServiceError('Debe seleccionar un propietario válido', { status: 400 });
   }
 
-  const client = await clientesRepository.findClientById(ownerId);
+  const owner = await usuariosRepository.findById(ownerId);
 
-  if (!client) {
+  if (!owner) {
     throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
   }
 
-  if (client.usuario_activo === false) {
+  if (owner.activo === false) {
     throw new ServiceError('El propietario seleccionado no existe o no está activo', { status: 400 });
   }
 
@@ -130,13 +130,13 @@ async function updateVehicle(id, payload) {
     throw new ServiceError('Debe seleccionar un propietario válido', { status: 400 });
   }
 
-  const client = await clientesRepository.findClientById(data.cliente_id);
+  const owner = await usuariosRepository.findById(data.cliente_id);
 
-  if (!client) {
+  if (!owner) {
     throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
   }
 
-  if (client.usuario_activo === false) {
+  if (owner.activo === false) {
     throw new ServiceError('El propietario seleccionado no existe o no está activo', { status: 400 });
   }
 
