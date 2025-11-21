@@ -30,8 +30,9 @@ function GestionCitas() {
     cliente_id: "",
     vehiculo_id: "",
     servicio_id: "",
-    fecha_hora: "",
-    estado: "programada",
+    fecha_cita: "",
+    hora_inicio: "",
+    estado: "Programada",
     observaciones: ""
   });
 
@@ -95,10 +96,10 @@ function GestionCitas() {
         await citasService.create(formData);
         setSuccess("Cita creada correctamente");
       }
-      
+
       setShowForm(false);
       setEditingCita(null);
-      setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_hora: "", estado: "programada", observaciones: "" });
+      setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_cita: "", hora_inicio: "", estado: "Programada", observaciones: "" });
       loadCitas();
     } catch (error) {
       setError("Error al guardar cita: " + error.message);
@@ -111,8 +112,9 @@ function GestionCitas() {
       cliente_id: cita.cliente_id || "",
       vehiculo_id: cita.vehiculo_id || "",
       servicio_id: cita.servicio_id || "",
-      fecha_hora: cita.fecha_hora ? new Date(cita.fecha_hora).toISOString().slice(0, 16) : "",
-      estado: cita.estado || "programada",
+      fecha_cita: cita.fecha_cita || "",
+      hora_inicio: cita.hora_inicio ? cita.hora_inicio.slice(0, 5) : "",
+      estado: cita.estado || "Programada",
       observaciones: cita.observaciones || ""
     });
     setShowForm(true);
@@ -147,26 +149,32 @@ function GestionCitas() {
 
   const getEstadoColor = (estado) => {
     switch (estado) {
-      case 'programada': return '#3b82f6';
-      case 'en_progreso': return '#f59e0b';
-      case 'completada': return '#10b981';
-      case 'cancelada': return '#ef4444';
+      case 'Programada': return '#3b82f6';
+      case 'En Proceso': return '#f59e0b';
+      case 'Completada': return '#10b981';
+      case 'Cancelada': return '#ef4444';
+      case 'Reprogramada': return '#6366f1';
       default: return '#6b7280';
     }
   };
 
   const estados = [
-    { value: "programada", label: "Programada" },
-    { value: "en_progreso", label: "En Progreso" },
-    { value: "completada", label: "Completada" },
-    { value: "cancelada", label: "Cancelada" }
+    { value: "Programada", label: "Programada" },
+    { value: "En Proceso", label: "En Proceso" },
+    { value: "Completada", label: "Completada" },
+    { value: "Cancelada", label: "Cancelada" },
+    { value: "Reprogramada", label: "Reprogramada" }
   ];
 
   const columns = [
-    { 
-      key: "fecha_hora", 
+    {
+      key: "fecha_cita",
       label: "Fecha y Hora",
-      render: (cita) => cita.fecha_hora ? new Date(cita.fecha_hora).toLocaleString('es-ES') : 'N/A'
+      render: (cita) => {
+        if (!cita.fecha_cita || !cita.hora_inicio) return 'N/A';
+        const fechaHora = new Date(`${cita.fecha_cita}T${cita.hora_inicio}`);
+        return fechaHora.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+      }
     },
     {
       key: "usuario_nombre",
@@ -249,7 +257,7 @@ function GestionCitas() {
             onClick={() => {
               setShowForm(true);
               setEditingCita(null);
-              setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_hora: "", estado: "programada", observaciones: "" });
+              setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_cita: "", hora_inicio: "", estado: "Programada", observaciones: "" });
             }}
           >
             <FiPlus size={16} />
@@ -369,8 +377,11 @@ function GestionCitas() {
                 <Input
                   label="Fecha y Hora"
                   type="datetime-local"
-                  value={formData.fecha_hora}
-                  onChange={(e) => setFormData({ ...formData, fecha_hora: e.target.value })}
+                  value={formData.fecha_cita && formData.hora_inicio ? `${formData.fecha_cita}T${formData.hora_inicio}` : ""}
+                  onChange={(e) => {
+                    const [fecha, hora] = e.target.value.split('T');
+                    setFormData({ ...formData, fecha_cita: fecha || "", hora_inicio: hora ? hora.slice(0, 5) : "" });
+                  }}
                   required
                 />
 
