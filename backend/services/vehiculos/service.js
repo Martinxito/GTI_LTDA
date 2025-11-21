@@ -1,5 +1,6 @@
 const { ServiceError } = require('../utils/serviceError');
 const repository = require('./repository');
+const clientesRepository = require('../clientes/repository');
 const historialService = require('../historial/service');
 
 async function listVehicles() {
@@ -44,8 +45,10 @@ async function createVehicle(payload) {
   }
 
   const ownerExists = await repository.clientExists(ownerId);
-  if (!ownerExists) {
-    throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
+  const client = ownerExists ? await clientesRepository.findClientById(ownerId) : null;
+
+  if (!ownerExists || !client || client.usuario_activo === false) {
+    throw new ServiceError('El propietario seleccionado no existe o no está activo', { status: 400 });
   }
 
   const data = {
@@ -125,8 +128,10 @@ async function updateVehicle(id, payload) {
   }
 
   const ownerExists = await repository.clientExists(data.cliente_id);
-  if (!ownerExists) {
-    throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
+  const client = ownerExists ? await clientesRepository.findClientById(data.cliente_id) : null;
+
+  if (!ownerExists || !client || client.usuario_activo === false) {
+    throw new ServiceError('El propietario seleccionado no existe o no está activo', { status: 400 });
   }
 
   if (!data.cliente_id || !data.marca || !data.modelo || !data.año || !data.placa) {

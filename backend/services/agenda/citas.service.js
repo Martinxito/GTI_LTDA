@@ -1,6 +1,8 @@
 const { ServiceError } = require('../utils/serviceError');
 const repository = require('./citas.repository');
 const serviciosRepository = require('./servicios.repository');
+const clientesRepository = require('../clientes/repository');
+const vehiculosRepository = require('../vehiculos/repository');
 
 function calculateEndTime(horaInicio, duracionEstimada) {
   const [hora, minutos] = horaInicio.split(':').map(Number);
@@ -51,6 +53,20 @@ async function createAppointment(payload) {
     throw new ServiceError('Faltan datos obligatorios para crear la cita', { status: 400 });
   }
 
+  const cliente = await clientesRepository.findClientById(cliente_id);
+  if (!cliente) {
+    throw new ServiceError('Cliente no encontrado', { status: 400 });
+  }
+
+  const vehiculo = await vehiculosRepository.findVehicleById(vehiculo_id);
+  if (!vehiculo) {
+    throw new ServiceError('Vehículo no encontrado', { status: 400 });
+  }
+
+  if (vehiculo.cliente_id !== cliente_id) {
+    throw new ServiceError('El vehículo no pertenece al cliente especificado', { status: 400 });
+  }
+
   const servicio = await serviciosRepository.findServiceById(servicio_id);
   if (!servicio) {
     throw new ServiceError('Servicio no encontrado', { status: 400 });
@@ -81,6 +97,23 @@ async function createAppointment(payload) {
 async function updateAppointment(id, payload) {
   const existing = await getAppointment(id);
 
+  const clienteId = payload.cliente_id || existing.cliente_id;
+  const vehiculoId = payload.vehiculo_id || existing.vehiculo_id;
+
+  const cliente = await clientesRepository.findClientById(clienteId);
+  if (!cliente) {
+    throw new ServiceError('Cliente no encontrado', { status: 400 });
+  }
+
+  const vehiculo = await vehiculosRepository.findVehicleById(vehiculoId);
+  if (!vehiculo) {
+    throw new ServiceError('Vehículo no encontrado', { status: 400 });
+  }
+
+  if (vehiculo.cliente_id !== clienteId) {
+    throw new ServiceError('El vehículo no pertenece al cliente especificado', { status: 400 });
+  }
+
   const servicioId = payload.servicio_id || existing.servicio_id;
   const servicio = await serviciosRepository.findServiceById(servicioId);
   if (!servicio) {
@@ -91,7 +124,8 @@ async function updateAppointment(id, payload) {
   const horaFin = payload.hora_fin || calculateEndTime(horaInicio, servicio.duracion_estimada || 60);
 
   const data = {
-    vehiculo_id: payload.vehiculo_id || existing.vehiculo_id,
+    cliente_id: clienteId,
+    vehiculo_id: vehiculoId,
     servicio_id: servicioId,
     mecanico_id: payload.mecanico_id || existing.mecanico_id,
     fecha_cita: payload.fecha_cita || existing.fecha_cita,
@@ -103,7 +137,7 @@ async function updateAppointment(id, payload) {
     costo_total: payload.costo_total ?? existing.costo_total
   };
 
-  if (!data.vehiculo_id || !data.servicio_id || !data.fecha_cita || !data.hora_inicio) {
+  if (!data.cliente_id || !data.vehiculo_id || !data.servicio_id || !data.fecha_cita || !data.hora_inicio) {
     throw new ServiceError('Faltan datos obligatorios para actualizar la cita', { status: 400 });
   }
 

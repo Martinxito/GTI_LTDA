@@ -127,18 +127,20 @@ async function insertAppointment(data) {
 async function updateAppointment(id, data) {
   await db.query(
     `UPDATE citas SET
-       vehiculo_id = $1,
-       servicio_id = $2,
-       mecanico_id = $3,
-       fecha_cita = $4,
-       hora_inicio = $5,
-       hora_fin = $6,
-       estado = $7,
-       observaciones = $8,
-       diagnostico = $9,
-       costo_total = $10
-     WHERE id = $11`,
+       cliente_id = $1,
+       vehiculo_id = $2,
+       servicio_id = $3,
+       mecanico_id = $4,
+       fecha_cita = $5,
+       hora_inicio = $6,
+       hora_fin = $7,
+       estado = $8,
+       observaciones = $9,
+       diagnostico = $10,
+       costo_total = $11
+     WHERE id = $12`,
     [
+      data.cliente_id,
       data.vehiculo_id,
       data.servicio_id,
       data.mecanico_id,

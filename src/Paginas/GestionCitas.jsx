@@ -13,13 +13,13 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
-import { citasService, vehiculosService, serviciosService, usuariosService } from "../Servicios/api";
+import { citasService, vehiculosService, serviciosService, clientesService } from "../Servicios/api";
 
 function GestionCitas() {
   const [citas, setCitas] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
   const [servicios, setServicios] = useState([]);
-  const [usuarios, setUsuarios] = useState([]);
+  const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -38,7 +38,7 @@ function GestionCitas() {
 
   useEffect(() => {
     loadCitas();
-    loadUsuarios();
+    loadClientes();
     loadVehiculos();
     loadServicios();
   }, []);
@@ -56,18 +56,20 @@ function GestionCitas() {
     }
   };
 
-  const loadUsuarios = async () => {
+  const loadClientes = async () => {
     try {
-      const data = await usuariosService.getAll();
-      setUsuarios(data);
+      const data = await clientesService.getAll();
+      setClientes(data);
     } catch (error) {
-      console.error("Error al cargar usuarios:", error);
+      console.error("Error al cargar clientes:", error);
     }
   };
 
-  const loadVehiculos = async () => {
+  const loadVehiculos = async (clienteId) => {
     try {
-      const data = await vehiculosService.getAll();
+      const data = clienteId
+        ? await vehiculosService.getByCliente(clienteId)
+        : await vehiculosService.getAll();
       setVehiculos(data);
     } catch (error) {
       console.error("Error al cargar vehículos:", error);
@@ -89,11 +91,23 @@ function GestionCitas() {
     setSuccess("");
 
     try {
+      const payload = {
+        ...formData,
+        cliente_id: Number(formData.cliente_id),
+        vehiculo_id: Number(formData.vehiculo_id),
+        servicio_id: Number(formData.servicio_id)
+      };
+
+      if (!payload.cliente_id || !payload.vehiculo_id || !payload.servicio_id || !payload.fecha_cita || !payload.hora_inicio) {
+        setError("Debes completar el cliente, vehículo, servicio, fecha y hora");
+        return;
+      }
+
       if (editingCita) {
-        await citasService.update(editingCita.id, formData);
+        await citasService.update(editingCita.id, payload);
         setSuccess("Cita actualizada correctamente");
       } else {
-        await citasService.create(formData);
+        await citasService.create(payload);
         setSuccess("Cita creada correctamente");
       }
 
@@ -107,6 +121,7 @@ function GestionCitas() {
   };
 
   const handleEdit = (cita) => {
+    loadVehiculos(cita.cliente_id);
     setEditingCita(cita);
     setFormData({
       cliente_id: cita.cliente_id || "",
@@ -132,9 +147,9 @@ function GestionCitas() {
     }
   };
 
-  const getUsuarioNombre = (usuarioId) => {
-    const usuario = usuarios.find(c => c.id === usuarioId);
-    return usuario ? `${usuario.nombre} ${usuario.apellido}` : "N/A";
+  const getUsuarioNombre = (clienteId) => {
+    const cliente = clientes.find(c => c.id === clienteId);
+    return cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A";
   };
 
   const getVehiculoInfo = (vehiculoId) => {
@@ -280,11 +295,19 @@ function GestionCitas() {
                     color: "#1e293b",
                     marginBottom: "0.5rem"
                   }}>
-                    Usuario
+                    Cliente
                   </label>
                   <select
                     value={formData.cliente_id}
-                    onChange={(e) => setFormData({ ...formData, cliente_id: e.target.value })}
+                    onChange={(e) => {
+                      const selectedCliente = e.target.value;
+                      setFormData({ ...formData, cliente_id: selectedCliente, vehiculo_id: "" });
+                      if (selectedCliente) {
+                        loadVehiculos(Number(selectedCliente));
+                      } else {
+                        loadVehiculos();
+                      }
+                    }}
                     style={{
                       width: "100%",
                       padding: "0.75rem 1rem",
@@ -297,9 +320,9 @@ function GestionCitas() {
                     required
                   >
                     <option value="">Seleccionar usuario</option>
-                    {usuarios.map(usuario => (
-                      <option key={usuario.id} value={usuario.id}>
-                        {usuario.nombre} {usuario.apellido}
+                    {clientes.map(cliente => (
+                      <option key={cliente.id} value={cliente.id}>
+                        {cliente.nombre} {cliente.apellido}
                       </option>
                     ))}
                   </select>
@@ -466,7 +489,7 @@ function GestionCitas() {
                   onClick={() => {
                     setShowForm(false);
                     setEditingCita(null);
-                    setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_hora: "", estado: "programada", observaciones: "" });
+                    setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_cita: "", hora_inicio: "", estado: "Programada", observaciones: "" });
                   }}
                 >
                   <FiX size={16} />
