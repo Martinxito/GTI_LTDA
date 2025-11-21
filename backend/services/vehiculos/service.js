@@ -61,6 +61,9 @@ async function createVehicle(payload) {
     if (error.code === '23505') {
       throw new ServiceError('La placa ya está registrada', { status: 409 });
     }
+    if (error.code === '23503') {
+      throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
+    }
     throw new ServiceError('No fue posible registrar el vehículo', { status: 500, details: error.message });
   }
 }
@@ -111,11 +114,19 @@ async function updateVehicle(id, payload) {
   }
 
   try {
-    await repository.updateVehicle(id, data);
+    const updatedRows = await repository.updateVehicle(id, data);
+
+    if (!updatedRows) {
+      throw new ServiceError('Vehículo no encontrado o inactivo', { status: 404 });
+    }
+
     return { mensaje: 'Vehículo actualizado exitosamente' };
   } catch (error) {
     if (error.code === '23505') {
       throw new ServiceError('La placa ya está registrada', { status: 409 });
+    }
+    if (error.code === '23503') {
+      throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
     }
     throw new ServiceError('No fue posible actualizar el vehículo', { status: 500, details: error.message });
   }
