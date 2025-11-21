@@ -54,6 +54,14 @@ async function findVehiclesByClient(clienteId) {
   return rows;
 }
 
+async function clientExists(clienteId) {
+  const [rows] = await db.query(
+    'SELECT 1 FROM usuarios WHERE id = $1 AND activo = true',
+    [clienteId]
+  );
+  return rows.length > 0;
+}
+
 async function insertVehicle(data) {
   const [rows] = await db.query(
     `INSERT INTO vehiculos (
@@ -130,6 +138,7 @@ module.exports = {
   listVehicles,
   findVehicleById,
   findVehiclesByClient,
+  clientExists,
   insertVehicle,
   updateVehicle,
   deactivateVehicle
