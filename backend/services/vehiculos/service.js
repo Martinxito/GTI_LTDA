@@ -44,10 +44,13 @@ async function createVehicle(payload) {
     throw new ServiceError('Debe seleccionar un propietario válido', { status: 400 });
   }
 
-  const ownerExists = await repository.clientExists(ownerId);
-  const client = ownerExists ? await clientesRepository.findClientById(ownerId) : null;
+  const client = await clientesRepository.findClientById(ownerId);
 
-  if (!ownerExists || !client || client.usuario_activo === false) {
+  if (!client) {
+    throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
+  }
+
+  if (client.usuario_activo === false) {
     throw new ServiceError('El propietario seleccionado no existe o no está activo', { status: 400 });
   }
 
@@ -127,10 +130,13 @@ async function updateVehicle(id, payload) {
     throw new ServiceError('Debe seleccionar un propietario válido', { status: 400 });
   }
 
-  const ownerExists = await repository.clientExists(data.cliente_id);
-  const client = ownerExists ? await clientesRepository.findClientById(data.cliente_id) : null;
+  const client = await clientesRepository.findClientById(data.cliente_id);
 
-  if (!ownerExists || !client || client.usuario_activo === false) {
+  if (!client) {
+    throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
+  }
+
+  if (client.usuario_activo === false) {
     throw new ServiceError('El propietario seleccionado no existe o no está activo', { status: 400 });
   }
 
