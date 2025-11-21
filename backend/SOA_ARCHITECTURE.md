@@ -3,8 +3,8 @@
 | Servicio | Responsabilidad | Prefijos canónicos | Dependencias clave |
 |----------|-----------------|--------------------|--------------------|
 | **Identity** | Registro, autenticación y emisión de JWT | `/identity`, alias `/usuarios` | Tabla `usuarios`, módulo `security` |
-| **Clientes** | Gestión de clientes (datos de perfil) | `/clientes` | Identity (para credenciales), tabla `usuarios` |
-| **Vehículos** | Alta, consulta y baja lógica de vehículos | `/vehiculos` | Servicios `clientes` y `historial` (consulta), tabla `vehiculos` |
+| **Usuarios** | Gestión de usuarios (datos de perfil) | `/usuarios` | Identity (para credenciales), tabla `usuarios` |
+| **Vehículos** | Alta, consulta y baja lógica de vehículos | `/vehiculos` | Servicios `usuarios` y `historial` (consulta), tabla `vehiculos` |
 | **Agenda** | Orquestación de citas y catálogo de servicios | `/agenda/citas`, `/agenda/servicios`, alias `/citas`, `/servicios` | Servicios `identity` (roles), tabla `citas`, tabla `servicios` |
 | **Historial / Órdenes** | Registro de mantenimientos y diagnósticos | `/historial` | Tabla `historial_mantenimiento`, datos de `citas` |
 | **Inventario** | Control de repuestos y consumos | `/inventario` | Tabla `inventario` |

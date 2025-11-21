@@ -1,6 +1,6 @@
 const { ServiceError } = require('../utils/serviceError');
 const repository = require('./repository');
-const clientesRepository = require('../clientes/repository');
+const usuariosRepository = require('../identity/repository');
 const historialService = require('../historial/service');
 
 async function listVehicles() {
@@ -15,13 +15,13 @@ async function getVehicle(id) {
   return vehicle;
 }
 
-async function listVehiclesByClient(clienteId) {
-  return repository.findVehiclesByClient(clienteId);
+async function listVehiclesByUser(usuarioId) {
+  return repository.findVehiclesByUser(usuarioId);
 }
 
 async function createVehicle(payload) {
   const {
-    cliente_id,
+    usuario_id,
     marca,
     modelo,
     año,
@@ -34,7 +34,7 @@ async function createVehicle(payload) {
     observaciones
   } = payload;
 
-  const ownerId = Number(cliente_id);
+  const ownerId = Number(usuario_id);
 
   if (!ownerId || !marca || !modelo || !año || !placa) {
     throw new ServiceError('Faltan datos obligatorios para registrar el vehículo', { status: 400 });
@@ -44,18 +44,18 @@ async function createVehicle(payload) {
     throw new ServiceError('Debe seleccionar un propietario válido', { status: 400 });
   }
 
-  const client = await clientesRepository.findClientById(ownerId);
+  const owner = await usuariosRepository.findById(ownerId);
 
-  if (!client) {
+  if (!owner) {
     throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
   }
 
-  if (client.usuario_activo === false) {
+  if (owner.activo === false) {
     throw new ServiceError('El propietario seleccionado no existe o no está activo', { status: 400 });
   }
 
   const data = {
-    cliente_id: ownerId,
+    usuario_id: ownerId,
     marca,
     modelo,
     año,
@@ -105,7 +105,7 @@ async function updateVehicle(id, payload) {
   };
 
   const data = {
-    cliente_id: resolveField('cliente_id'),
+    usuario_id: resolveField('usuario_id'),
     marca: resolveField('marca'),
     modelo: resolveField('modelo'),
     año: resolveField('año'),
@@ -118,29 +118,29 @@ async function updateVehicle(id, payload) {
     observaciones: resolveField('observaciones')
   };
 
-  data.cliente_id = parseInteger(data.cliente_id, existingVehicle.cliente_id);
+  data.usuario_id = parseInteger(data.usuario_id, existingVehicle.usuario_id);
   data.año = parseInteger(data.año, existingVehicle.año);
   data.kilometraje = parseInteger(data.kilometraje, existingVehicle.kilometraje ?? 0);
 
-  if (!Number.isInteger(data.cliente_id) || !Number.isInteger(data.año) || !Number.isFinite(data.kilometraje)) {
+  if (!Number.isInteger(data.usuario_id) || !Number.isInteger(data.año) || !Number.isFinite(data.kilometraje)) {
     throw new ServiceError('Datos numéricos inválidos para actualizar el vehículo', { status: 400 });
   }
 
-  if (data.cliente_id <= 0) {
+  if (data.usuario_id <= 0) {
     throw new ServiceError('Debe seleccionar un propietario válido', { status: 400 });
   }
 
-  const client = await clientesRepository.findClientById(data.cliente_id);
+  const owner = await usuariosRepository.findById(data.usuario_id);
 
-  if (!client) {
+  if (!owner) {
     throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
   }
 
-  if (client.usuario_activo === false) {
+  if (owner.activo === false) {
     throw new ServiceError('El propietario seleccionado no existe o no está activo', { status: 400 });
   }
 
-  if (!data.cliente_id || !data.marca || !data.modelo || !data.año || !data.placa) {
+  if (!data.usuario_id || !data.marca || !data.modelo || !data.año || !data.placa) {
     throw new ServiceError('Faltan datos obligatorios para actualizar el vehículo', { status: 400 });
   }
 
@@ -177,7 +177,7 @@ async function getVehicleHistory(id) {
 module.exports = {
   listVehicles,
   getVehicle,
-  listVehiclesByClient,
+  listVehiclesByUser,
   createVehicle,
   updateVehicle,
   deleteVehicle,

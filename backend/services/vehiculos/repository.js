@@ -4,7 +4,7 @@ async function listVehicles() {
   const [rows] = await db.query(
     `SELECT
        v.id,
-       v.cliente_id,
+       v.usuario_id,
        v.marca,
        v.modelo,
        v.año,
@@ -16,11 +16,11 @@ async function listVehicles() {
        v.numero_chasis,
        v.observaciones,
        v.created_at,
-       u.nombre AS cliente_nombre,
-       u.apellido AS cliente_apellido,
-       u.telefono AS cliente_telefono
+       u.nombre AS usuario_nombre,
+       u.apellido AS usuario_apellido,
+       u.telefono AS usuario_telefono
      FROM vehiculos v
-     JOIN usuarios u ON v.cliente_id = u.id
+     JOIN usuarios u ON v.usuario_id = u.id
      WHERE v.activo = true
      ORDER BY v.created_at DESC`
   );
@@ -31,33 +31,33 @@ async function findVehicleById(id) {
   const [rows] = await db.query(
     `SELECT
        v.*,
-       u.nombre AS cliente_nombre,
-       u.apellido AS cliente_apellido,
-       u.telefono AS cliente_telefono,
-       u.email AS cliente_email
+       u.nombre AS usuario_nombre,
+       u.apellido AS usuario_apellido,
+       u.telefono AS usuario_telefono,
+       u.email AS usuario_email
      FROM vehiculos v
-     JOIN usuarios u ON v.cliente_id = u.id
+     JOIN usuarios u ON v.usuario_id = u.id
      WHERE v.id = $1 AND v.activo = true`,
     [id]
   );
   return rows[0] || null;
 }
 
-async function findVehiclesByClient(clienteId) {
+async function findVehiclesByUser(usuarioId) {
   const [rows] = await db.query(
     `SELECT *
      FROM vehiculos
-     WHERE cliente_id = $1 AND activo = true
+     WHERE usuario_id = $1 AND activo = true
      ORDER BY created_at DESC`,
-    [clienteId]
+    [usuarioId]
   );
   return rows;
 }
 
-async function clientExists(clienteId) {
+async function userExists(usuarioId) {
   const [rows] = await db.query(
     'SELECT 1 FROM usuarios WHERE id = $1 LIMIT 1',
-    [clienteId]
+    [usuarioId]
   );
 
   return rows.length > 0;
@@ -66,7 +66,7 @@ async function clientExists(clienteId) {
 async function insertVehicle(data) {
   const [rows] = await db.query(
     `INSERT INTO vehiculos (
-       cliente_id,
+       usuario_id,
        marca,
        modelo,
        año,
@@ -81,7 +81,7 @@ async function insertVehicle(data) {
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING id`,
     [
-      data.cliente_id,
+      data.usuario_id,
       data.marca,
       data.modelo,
       data.año,
@@ -100,7 +100,7 @@ async function insertVehicle(data) {
 async function updateVehicle(id, data) {
   const [, result] = await db.query(
     `UPDATE vehiculos SET
-      cliente_id = $1,
+      usuario_id = $1,
       marca = $2,
       modelo = $3,
       año = $4,
@@ -113,7 +113,7 @@ async function updateVehicle(id, data) {
       observaciones = $11
     WHERE id = $12 AND activo = true`,
     [
-      data.cliente_id,
+      data.usuario_id,
       data.marca,
       data.modelo,
       data.año,
@@ -138,8 +138,8 @@ async function deactivateVehicle(id) {
 module.exports = {
   listVehicles,
   findVehicleById,
-  findVehiclesByClient,
-  clientExists,
+  findVehiclesByUser,
+  userExists,
   insertVehicle,
   updateVehicle,
   deactivateVehicle

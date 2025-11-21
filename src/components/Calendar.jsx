@@ -216,7 +216,7 @@ const Calendar = ({ onDateSelect, onAppointmentClick }) => {
                       e.stopPropagation();
                       handleAppointmentClick(appointment);
                     }}
-                    title={`${appointment.cliente_nombre || 'Cliente'} - ${appointment.servicio_nombre || 'Servicio'}`}
+                    title={`${appointment.usuario_nombre || 'Usuario'} - ${appointment.servicio_nombre || 'Servicio'}`}
                   >
                     {new Date(appointment.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                   </div>
@@ -271,7 +271,7 @@ const Calendar = ({ onDateSelect, onAppointmentClick }) => {
                       {new Date(appointment.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                     </div>
                     <div className="truncate">
-                      {appointment.cliente_nombre || 'Cliente'}
+                      {appointment.usuario_nombre || 'Usuario'}
                     </div>
                     <div className="truncate text-xs opacity-75">
                       {appointment.servicio_nombre || 'Servicio'}

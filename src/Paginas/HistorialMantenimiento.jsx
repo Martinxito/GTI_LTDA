@@ -30,7 +30,7 @@ function HistorialMantenimiento() {
     try {
       setLoading(true);
       const vehiculosRequest = user.rol === 'cliente'
-        ? vehiculosService.getByCliente(user.id)
+        ? vehiculosService.getByUsuario(user.id)
         : vehiculosService.getAll();
 
       const [vehiculosData, citasData] = await Promise.all([
@@ -41,7 +41,7 @@ function HistorialMantenimiento() {
       // Filtrar vehículos según el rol del usuario
       let vehiculosFiltrados = vehiculosData;
       if (user.rol === 'cliente') {
-        vehiculosFiltrados = vehiculosData.filter(vehiculo => vehiculo.cliente_id === user.id);
+        vehiculosFiltrados = vehiculosData.filter(vehiculo => vehiculo.usuario_id === user.id);
       }
 
       setVehiculos(Array.isArray(vehiculosFiltrados) ? vehiculosFiltrados : []);
@@ -54,7 +54,7 @@ function HistorialMantenimiento() {
           return {
             ...cita,
             vehiculo_info: vehiculo ? `${vehiculo.marca} ${vehiculo.modelo} - ${vehiculo.placa}` : 'N/A',
-            cliente_nombre: vehiculo ? `${vehiculo.cliente_nombre || 'Cliente'}` : 'N/A'
+            cliente_nombre: vehiculo ? `${vehiculo.usuario_nombre || 'Usuario'}` : 'N/A'
           };
         })
         .sort((a, b) => {
@@ -105,7 +105,7 @@ function HistorialMantenimiento() {
     },
     { key: "vehiculo_info", label: "Vehículo" },
     { key: "servicio_nombre", label: "Servicio Realizado" },
-    { key: "cliente_nombre", label: "Cliente" },
+    { key: "usuario_nombre", label: "Usuario" },
     { 
       key: "observaciones", 
       label: "Observaciones",
