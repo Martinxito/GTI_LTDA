@@ -56,9 +56,10 @@ async function findVehiclesByClient(clienteId) {
 
 async function clientExists(clienteId) {
   const [rows] = await db.query(
-    'SELECT 1 FROM usuarios WHERE id = $1 AND activo = true',
+    'SELECT 1 FROM usuarios WHERE id = $1 LIMIT 1',
     [clienteId]
   );
+
   return rows.length > 0;
 }
 
