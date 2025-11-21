@@ -35,7 +35,7 @@ function GestionVehiculos() {
     año: "",
     placa: "",
     color: "",
-    cliente_id: ""
+    usuario_id: ""
   });
 
   const loadVehiculos = useCallback(async () => {
@@ -75,7 +75,7 @@ function GestionVehiculos() {
   // para evitar envíos con propietario vacío o inválido.
   useEffect(() => {
     if (user?.rol === "cliente" && user?.id) {
-      setFormData((prev) => ({ ...prev, cliente_id: String(user.id) }));
+      setFormData((prev) => ({ ...prev, usuario_id: String(user.id) }));
     }
   }, [user]);
 
@@ -85,9 +85,11 @@ function GestionVehiculos() {
     setSuccess("");
 
     try {
+      const propietarioId = Number(user?.rol === "cliente" ? user.id : formData.usuario_id);
+
       const payload = {
         ...formData,
-        cliente_id: Number(user?.rol === "cliente" ? user.id : formData.cliente_id),
+        usuario_id: propietarioId,
         año: Number(formData.año)
       };
 
@@ -101,7 +103,7 @@ function GestionVehiculos() {
 
       setShowForm(false);
       setEditingVehiculo(null);
-      setFormData({ marca: "", modelo: "", año: "", placa: "", color: "", cliente_id: "" });
+      setFormData({ marca: "", modelo: "", año: "", placa: "", color: "", usuario_id: "" });
       loadVehiculos();
     } catch (error) {
       setError("Error al guardar vehículo: " + error.message);
@@ -116,7 +118,7 @@ function GestionVehiculos() {
       año: vehiculo.año || "",
       placa: vehiculo.placa || "",
       color: vehiculo.color || "",
-      cliente_id: vehiculo.cliente_id ? String(vehiculo.cliente_id) : ""
+      usuario_id: vehiculo.cliente_id ? String(vehiculo.cliente_id) : ""
     });
     setShowForm(true);
   };
@@ -214,7 +216,7 @@ function GestionVehiculos() {
                   año: "",
                   placa: "",
                   color: "",
-                  cliente_id: ""
+                  usuario_id: ""
                 });
               }}
             >
@@ -294,9 +296,9 @@ function GestionVehiculos() {
                     Propietario
                   </label>
                   <select
-                    value={formData.cliente_id}
+                    value={formData.usuario_id}
                     onChange={(e) =>
-                      setFormData({ ...formData, cliente_id: e.target.value })
+                      setFormData({ ...formData, usuario_id: e.target.value })
                     }
                     disabled={user?.rol === "cliente"}
                     style={{

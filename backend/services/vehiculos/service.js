@@ -21,6 +21,7 @@ async function listVehiclesByClient(clienteId) {
 
 async function createVehicle(payload) {
   const {
+    usuario_id,
     cliente_id,
     marca,
     modelo,
@@ -34,7 +35,7 @@ async function createVehicle(payload) {
     observaciones
   } = payload;
 
-  const ownerId = Number(cliente_id);
+  const ownerId = Number(usuario_id ?? cliente_id);
 
   if (!ownerId || !marca || !modelo || !año || !placa) {
     throw new ServiceError('Faltan datos obligatorios para registrar el vehículo', { status: 400 });
@@ -105,7 +106,7 @@ async function updateVehicle(id, payload) {
   };
 
   const data = {
-    cliente_id: resolveField('cliente_id'),
+    cliente_id: resolveField('usuario_id') ?? resolveField('cliente_id'),
     marca: resolveField('marca'),
     modelo: resolveField('modelo'),
     año: resolveField('año'),
