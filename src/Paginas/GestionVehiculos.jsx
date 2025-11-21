@@ -16,13 +16,13 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
-import { vehiculosService, clientesService } from "../Servicios/api";
+import { vehiculosService, usuariosService } from "../Servicios/api";
 import { AuthContext } from "../context/AuthContext"; // Importar el contexto de autenticación
 
 function GestionVehiculos() {
   const { user } = useContext(AuthContext); // Obtener el usuario y su rol
   const [vehiculos, setVehiculos] = useState([]);
-  const [clientes, setClientes] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -54,19 +54,22 @@ function GestionVehiculos() {
     }
   }, [user]);
 
-  const loadClientes = useCallback(async () => {
+  const loadUsuarios = useCallback(async () => {
     try {
-      const data = await clientesService.getAll();
-      setClientes(data);
+      const data = await usuariosService.getAll();
+      const onlyClients = Array.isArray(data)
+        ? data.filter((usuario) => usuario.rol === "cliente")
+        : [];
+      setUsuarios(onlyClients);
     } catch (error) {
-      console.error("Error al cargar clientes:", error);
+      console.error("Error al cargar usuarios:", error);
     }
   }, []);
 
   useEffect(() => {
     loadVehiculos();
-    loadClientes();
-  }, [loadVehiculos, loadClientes]);
+    loadUsuarios();
+  }, [loadVehiculos, loadUsuarios]);
 
   // Cuando el usuario es un cliente, fijamos automáticamente su ID como propietario
   // para evitar envíos con propietario vacío o inválido.
@@ -131,7 +134,7 @@ function GestionVehiculos() {
   };
 
   const getUsuarioNombre = (usuarioId) => {
-    const usuario = clientes.find((c) => c.id === usuarioId);
+    const usuario = usuarios.find((c) => c.id === usuarioId);
     return usuario ? `${usuario.nombre} ${usuario.apellido}` : "N/A";
   };
 
@@ -310,7 +313,7 @@ function GestionVehiculos() {
                     <option value="">
                       {user?.rol === "cliente" ? "Tu usuario" : "Seleccionar cliente"}
                     </option>
-                    {clientes.map((cliente) => (
+                    {usuarios.map((cliente) => (
                       <option key={cliente.id} value={cliente.id}>
                         {cliente.nombre} {cliente.apellido}
                       </option>

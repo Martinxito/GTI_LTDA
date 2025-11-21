@@ -13,13 +13,13 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
-import { citasService, vehiculosService, serviciosService, clientesService } from "../Servicios/api";
+import { citasService, vehiculosService, serviciosService, usuariosService } from "../Servicios/api";
 
 function GestionCitas() {
   const [citas, setCitas] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
   const [servicios, setServicios] = useState([]);
-  const [clientes, setClientes] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -68,7 +68,7 @@ function GestionCitas() {
 
   useEffect(() => {
     loadCitas();
-    loadClientes();
+    loadUsuarios();
     loadVehiculos();
     loadServicios();
   }, []);
@@ -94,14 +94,17 @@ function GestionCitas() {
     }
   };
 
-  const loadClientes = async () => {
+  const loadUsuarios = async () => {
     try {
-      const data = await clientesService.getAll();
-      setClientes(Array.isArray(data) ? data : []);
+      const data = await usuariosService.getAll();
+      const onlyClients = Array.isArray(data)
+        ? data.filter((usuario) => usuario.rol === "cliente")
+        : [];
+      setUsuarios(onlyClients);
     } catch (error) {
-      console.error("Error al cargar clientes:", error);
-      setClientes([]);
-      setError("No se pudieron cargar los clientes. Verifica la conexión con el servidor.");
+      console.error("Error al cargar usuarios:", error);
+      setUsuarios([]);
+      setError("No se pudieron cargar los usuarios. Verifica la conexión con el servidor.");
     }
   };
 
@@ -193,7 +196,7 @@ function GestionCitas() {
   };
 
   const getUsuarioNombre = (clienteId) => {
-    const cliente = clientes.find(c => c.id === clienteId);
+    const cliente = usuarios.find(c => c.id === clienteId);
     return cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A";
   };
 
@@ -365,7 +368,7 @@ function GestionCitas() {
                     required
                   >
                     <option value="">Seleccionar usuario</option>
-                    {clientes.map(cliente => (
+                    {usuarios.map(cliente => (
                       <option key={cliente.id} value={cliente.id}>
                         {cliente.nombre} {cliente.apellido}
                       </option>
