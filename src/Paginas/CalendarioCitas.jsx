@@ -223,9 +223,9 @@ function CalendarioCitas() {
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap"
                         }}
-                        title={`${cita.cliente_nombre || "Cliente"} - ${cita.servicio_nombre || "Servicio"} - ${new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`}
+                        title={`${cita.usuario_nombre || "Usuario"} - ${cita.servicio_nombre || "Servicio"} - ${new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`}
                       >
-                        {new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {cita.cliente_nombre || "Cliente"}
+                        {new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} - {cita.usuario_nombre || "Usuario"}
                       </div>
                     ))}
                     {citasDelDia.length > 3 && (

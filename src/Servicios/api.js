@@ -111,8 +111,8 @@ export const vehiculosService = {
     });
   },
 
-  async getByCliente(clienteId) {
-    return apiRequest(`/vehiculos/cliente/${clienteId}`);
+  async getByUsuario(usuarioId) {
+    return apiRequest(`/vehiculos/usuario/${usuarioId}`);
   },
 
   async getHistorial(id) {
@@ -122,17 +122,6 @@ export const vehiculosService = {
   async getHistorialMantenimiento(id) {
     return apiRequest(`/vehiculos/${id}/historial-mantenimiento`);
   },
-};
-
-// Servicios de clientes
-export const clientesService = {
-  async getAll() {
-    return apiRequest('/clientes');
-  },
-
-  async getById(id) {
-    return apiRequest(`/clientes/${id}`);
-  }
 };
 
 // Servicios de servicios
