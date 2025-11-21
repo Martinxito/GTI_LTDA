@@ -33,12 +33,23 @@ async function createVehicle(payload) {
     observaciones
   } = payload;
 
-  if (!cliente_id || !marca || !modelo || !año || !placa) {
+  const ownerId = Number(cliente_id);
+
+  if (!ownerId || !marca || !modelo || !año || !placa) {
     throw new ServiceError('Faltan datos obligatorios para registrar el vehículo', { status: 400 });
   }
 
+  if (!Number.isInteger(ownerId) || ownerId <= 0) {
+    throw new ServiceError('Debe seleccionar un propietario válido', { status: 400 });
+  }
+
+  const ownerExists = await repository.clientExists(ownerId);
+  if (!ownerExists) {
+    throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
+  }
+
   const data = {
-    cliente_id,
+    cliente_id: ownerId,
     marca,
     modelo,
     año,
@@ -107,6 +118,15 @@ async function updateVehicle(id, payload) {
 
   if (!Number.isInteger(data.cliente_id) || !Number.isInteger(data.año) || !Number.isFinite(data.kilometraje)) {
     throw new ServiceError('Datos numéricos inválidos para actualizar el vehículo', { status: 400 });
+  }
+
+  if (data.cliente_id <= 0) {
+    throw new ServiceError('Debe seleccionar un propietario válido', { status: 400 });
+  }
+
+  const ownerExists = await repository.clientExists(data.cliente_id);
+  if (!ownerExists) {
+    throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
   }
 
   if (!data.cliente_id || !data.marca || !data.modelo || !data.año || !data.placa) {
