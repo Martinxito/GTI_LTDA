@@ -89,7 +89,7 @@ async function insertVehicle(data) {
 }
 
 async function updateVehicle(id, data) {
-  await db.query(
+  const [, result] = await db.query(
     `UPDATE vehiculos SET
       cliente_id = $1,
       marca = $2,
@@ -118,6 +118,8 @@ async function updateVehicle(id, data) {
       id
     ]
   );
+
+  return result.rowCount;
 }
 
 async function deactivateVehicle(id) {
