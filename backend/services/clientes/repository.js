@@ -1,18 +1,48 @@
 const db = require('../../db');
 
+const CLIENT_COLUMN_MAP = {
+  id: ['id'],
+  nombre: ['nombre', 'u_nombre'],
+  apellido: ['apellido', 'u_apellido'],
+  email: ['email', 'u_email'],
+  telefono: ['telefono', 'u_telefono'],
+  direccion: ['direccion', 'u_direccion'],
+  fecha_nacimiento: ['fecha_nacimiento', 'u_fecha_nacimiento'],
+  documento_identidad: ['documento_identidad', 'u_documento_identidad'],
+  tipo_documento: ['tipo_documento', 'u_tipo_documento'],
+  usuario_activo: ['activo', 'u_activo']
+};
+
+async function resolveClientColumns() {
+  const [rows] = await db.query(
+    `SELECT column_name
+     FROM information_schema.columns
+     WHERE table_schema = current_schema()
+       AND table_name = 'usuarios'`
+  );
+
+  const existingColumns = new Set(rows.map((row) => row.column_name.toLowerCase()));
+
+  const selectColumns = Object.entries(CLIENT_COLUMN_MAP)
+    .map(([alias, candidates]) => {
+      const match = candidates.find((column) => existingColumns.has(column.toLowerCase()));
+      return match ? `u.${match} AS ${alias}` : null;
+    })
+    .filter(Boolean);
+
+  // Siempre incluimos el id para evitar consultas inválidas
+  if (!selectColumns.length) {
+    selectColumns.push('u.id');
+  }
+
+  return selectColumns.join(',\n       ');
+}
+
 async function listClients() {
+  const clientColumns = await resolveClientColumns();
   const [rows] = await db.query(
     `SELECT
-       u.id,
-       u.nombre,
-       u.apellido,
-       u.email,
-       u.telefono,
-       u.direccion,
-       u.fecha_nacimiento,
-       u.documento_identidad,
-       u.tipo_documento,
-       u.activo AS usuario_activo,
+       ${clientColumns},
        COUNT(v.id) AS total_vehiculos
      FROM usuarios u
      LEFT JOIN vehiculos v ON v.cliente_id = u.id AND v.activo = true
@@ -24,18 +54,10 @@ async function listClients() {
 }
 
 async function findClientById(id) {
+  const clientColumns = await resolveClientColumns();
   const [rows] = await db.query(
     `SELECT
-       u.id,
-       u.nombre,
-       u.apellido,
-       u.email,
-       u.telefono,
-       u.direccion,
-       u.fecha_nacimiento,
-       u.documento_identidad,
-       u.tipo_documento,
-       u.activo AS usuario_activo
+       ${clientColumns}
      FROM usuarios u
      WHERE u.id = $1 AND u.rol = 'cliente'`,
     [id]

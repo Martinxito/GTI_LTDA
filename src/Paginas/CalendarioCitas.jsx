@@ -18,7 +18,15 @@ function CalendarioCitas() {
     try {
       setLoading(true);
       const data = await citasService.getAll();
-      setCitas(data);
+      const normalized = Array.isArray(data)
+        ? data.map((cita) => ({
+            ...cita,
+            fecha_hora: cita.fecha_cita && cita.hora_inicio
+              ? `${cita.fecha_cita}T${cita.hora_inicio}`
+              : null
+          }))
+        : [];
+      setCitas(normalized);
     } catch (error) {
       console.error("Error al cargar citas:", error);
     } finally {
@@ -76,15 +84,18 @@ function CalendarioCitas() {
 
   const getCitasForDate = (date) => {
     const dateStr = date.toISOString().split('T')[0];
-    return citas.filter(cita => cita && cita.fecha_hora && cita.fecha_hora.startsWith(dateStr));
+    return citas.filter((cita) =>
+      cita && cita.fecha_hora && cita.fecha_hora.startsWith(dateStr)
+    );
   };
 
   const getEstadoColor = (estado) => {
     switch (estado) {
-      case 'programada': return '#3b82f6';
-      case 'en_progreso': return '#f59e0b';
-      case 'completada': return '#10b981';
-      case 'cancelada': return '#ef4444';
+      case 'Programada': return '#3b82f6';
+      case 'En Proceso': return '#f59e0b';
+      case 'Completada': return '#10b981';
+      case 'Cancelada': return '#ef4444';
+      case 'Reprogramada': return '#6366f1';
       default: return '#6b7280';
     }
   };
