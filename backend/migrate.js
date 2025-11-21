@@ -318,7 +318,7 @@ async function migrate() {
         INSERT INTO inventario (nombre, descripcion, cantidad, cantidad_minima, precio_compra, precio_venta, categoria, proveedor) VALUES
         ('Filtro de aceite', 'Filtro de aceite para motor', 25, 5, 15000, 25000, 'Repuestos', 'Repuestos ABC'),
         ('Pastillas de freno', 'Pastillas de freno delanteras', 15, 3, 45000, 75000, 'Repuestos', 'Frenos XYZ'),
-        ('Bujías', 'Bujías de encendido', 50, 10, 8000, 15000, 'Eléctricos 123'),
+        ('Bujías', 'Bujías de encendido', 50, 10, 8000, 15000, 'Eléctricos', 'Eléctricos 123'),
         ('Aceite motor 5W-30', 'Aceite sintético 5W-30', 12, 5, 25000, 40000, 'Lubricantes', 'Lubricantes Plus'),
         ('Líquido de frenos', 'Líquido de frenos DOT 4', 8, 2, 12000, 20000, 'Lubricantes', 'Frenos XYZ'),
         ('Filtro de aire', 'Filtro de aire del motor', 20, 5, 18000, 30000, 'Repuestos', 'Repuestos ABC')
