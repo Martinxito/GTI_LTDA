@@ -42,7 +42,7 @@ function GestionVehiculos() {
     try {
       setLoading(true);
       const data = user?.rol === "cliente"
-        ? await vehiculosService.getByCliente(user.id)
+        ? await vehiculosService.getByUsuario(user.id)
         : await vehiculosService.getAll();
 
       setVehiculos(Array.isArray(data) ? data : []);
@@ -118,7 +118,7 @@ function GestionVehiculos() {
       año: vehiculo.año || "",
       placa: vehiculo.placa || "",
       color: vehiculo.color || "",
-      usuario_id: vehiculo.cliente_id ? String(vehiculo.cliente_id) : ""
+      usuario_id: vehiculo.usuario_id ? String(vehiculo.usuario_id) : ""
     });
     setShowForm(true);
   };
@@ -149,7 +149,7 @@ function GestionVehiculos() {
     {
       key: "usuario_nombre",
       label: "Propietario",
-      render: (vehiculo) => getUsuarioNombre(vehiculo.cliente_id)
+      render: (vehiculo) => getUsuarioNombre(vehiculo.usuario_id)
     },
     {
       key: "actions",
@@ -313,11 +313,11 @@ function GestionVehiculos() {
                     required
                   >
                     <option value="">
-                      {user?.rol === "cliente" ? "Tu usuario" : "Seleccionar cliente"}
+                      {user?.rol === "cliente" ? "Tu usuario" : "Seleccionar usuario"}
                     </option>
-                    {usuarios.map((cliente) => (
-                      <option key={cliente.id} value={cliente.id}>
-                        {cliente.nombre} {cliente.apellido}
+                    {usuarios.map((usuario) => (
+                      <option key={usuario.id} value={usuario.id}>
+                        {usuario.nombre} {usuario.apellido}
                       </option>
                     ))}
                   </select>
@@ -350,7 +350,7 @@ function GestionVehiculos() {
                       año: "",
                       placa: "",
                       color: "",
-                      cliente_id: ""
+                      usuario_id: ""
                     });
                   }}
                 >

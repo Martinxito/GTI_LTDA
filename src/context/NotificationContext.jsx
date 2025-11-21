@@ -142,7 +142,7 @@ export function NotificationProvider({ children }) {
           addNotification({
             type: NOTIFICATION_TYPES.APPOINTMENT_TODAY,
             title: 'Cita Programada Hoy',
-            message: `${cita.cliente_nombre || 'Cliente'} - ${cita.servicio_nombre || 'Servicio'} a las ${new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`,
+            message: `${cita.usuario_nombre || 'Usuario'} - ${cita.servicio_nombre || 'Servicio'} a las ${new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`,
             data: { citaId: cita.id }
           });
         }
@@ -167,7 +167,7 @@ export function NotificationProvider({ children }) {
         addNotification({
           type: NOTIFICATION_TYPES.APPOINTMENT_OVERDUE,
           title: 'Cita Vencida',
-          message: `${cita.cliente_nombre || 'Cliente'} - ${cita.servicio_nombre || 'Servicio'} estaba programada para ${new Date(cita.fecha_hora).toLocaleDateString('es-ES')}`,
+          message: `${cita.usuario_nombre || 'Usuario'} - ${cita.servicio_nombre || 'Servicio'} estaba programada para ${new Date(cita.fecha_hora).toLocaleDateString('es-ES')}`,
           data: { citaId: cita.id }
         });
       });

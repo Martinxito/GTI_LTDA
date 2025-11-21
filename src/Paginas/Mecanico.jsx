@@ -228,7 +228,7 @@ function Mecanico() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div>
                       <div style={{ fontSize: "1.125rem", fontWeight: "600", color: "#1e293b", marginBottom: "0.25rem" }}>
-                        {cita.cliente_nombre || "Cliente"}
+                        {cita.usuario_nombre || "Usuario"}
                       </div>
                       <div style={{ fontSize: "0.875rem", color: "#64748b", marginBottom: "0.5rem" }}>
                         {cita.vehiculo_info || "Vehículo"} - {cita.servicio_nombre || "Servicio"}
@@ -303,7 +303,7 @@ function Mecanico() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
                       <div style={{ fontSize: "0.875rem", fontWeight: "600", color: "#1e293b" }}>
-                        {cita.cliente_nombre || "Cliente"}
+                        {cita.usuario_nombre || "Usuario"}
                       </div>
                       <div style={{ fontSize: "0.75rem", color: "#64748b" }}>
                         {cita.fecha_hora ? `${new Date(cita.fecha_hora).toLocaleDateString('es-ES')} - ${new Date(cita.fecha_hora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}` : 'N/A'}
