@@ -13,13 +13,13 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
-import { citasService, vehiculosService, serviciosService, usuariosService } from "../Servicios/api";
+import { citasService, vehiculosService, serviciosService, clientesService } from "../Servicios/api";
 
 function GestionCitas() {
   const [citas, setCitas] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
   const [servicios, setServicios] = useState([]);
-  const [usuarios, setUsuarios] = useState([]);
+  const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -36,9 +36,39 @@ function GestionCitas() {
     observaciones: ""
   });
 
+  const normalizeDate = (value) => {
+    if (!value) return "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value;
+    }
+
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toISOString().slice(0, 10);
+    }
+
+    const match = `${value}`.match(/(\d{4}-\d{2}-\d{2})/);
+    return match ? match[1] : "";
+  };
+
+  const normalizeTime = (value) => {
+    if (!value) return "";
+    if (/^\d{2}:\d{2}/.test(value)) {
+      return value.slice(0, 5);
+    }
+
+    const parsed = new Date(`1970-01-01T${value}`);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toISOString().slice(11, 16);
+    }
+
+    const match = `${value}`.match(/(\d{2}:\d{2})/);
+    return match ? match[1] : "";
+  };
+
   useEffect(() => {
     loadCitas();
-    loadUsuarios();
+    loadClientes();
     loadVehiculos();
     loadServicios();
   }, []);
@@ -47,7 +77,15 @@ function GestionCitas() {
     try {
       setLoading(true);
       const data = await citasService.getAll();
-      setCitas(Array.isArray(data) ? data : []);
+      const normalized = Array.isArray(data)
+        ? data.map((cita) => ({
+            ...cita,
+            fecha_cita: normalizeDate(cita.fecha_cita),
+            hora_inicio: normalizeTime(cita.hora_inicio),
+            hora_fin: normalizeTime(cita.hora_fin)
+          }))
+        : [];
+      setCitas(normalized);
     } catch (error) {
       setError("Error al cargar citas: " + error.message);
       setCitas([]);
@@ -56,18 +94,22 @@ function GestionCitas() {
     }
   };
 
-  const loadUsuarios = async () => {
+  const loadClientes = async () => {
     try {
-      const data = await usuariosService.getAll();
-      setUsuarios(data);
+      const data = await clientesService.getAll();
+      setClientes(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Error al cargar usuarios:", error);
+      console.error("Error al cargar clientes:", error);
+      setClientes([]);
+      setError("No se pudieron cargar los clientes. Verifica la conexión con el servidor.");
     }
   };
 
-  const loadVehiculos = async () => {
+  const loadVehiculos = async (clienteId) => {
     try {
-      const data = await vehiculosService.getAll();
+      const data = clienteId
+        ? await vehiculosService.getByCliente(clienteId)
+        : await vehiculosService.getAll();
       setVehiculos(data);
     } catch (error) {
       console.error("Error al cargar vehículos:", error);
@@ -89,11 +131,28 @@ function GestionCitas() {
     setSuccess("");
 
     try {
+      const fecha = normalizeDate(formData.fecha_cita);
+      const hora = normalizeTime(formData.hora_inicio);
+
+      const payload = {
+        ...formData,
+        cliente_id: Number(formData.cliente_id),
+        vehiculo_id: Number(formData.vehiculo_id),
+        servicio_id: Number(formData.servicio_id),
+        fecha_cita: fecha,
+        hora_inicio: hora
+      };
+
+      if (!payload.cliente_id || !payload.vehiculo_id || !payload.servicio_id || !payload.fecha_cita || !payload.hora_inicio) {
+        setError("Debes completar el cliente, vehículo, servicio, fecha y hora");
+        return;
+      }
+
       if (editingCita) {
-        await citasService.update(editingCita.id, formData);
+        await citasService.update(editingCita.id, payload);
         setSuccess("Cita actualizada correctamente");
       } else {
-        await citasService.create(formData);
+        await citasService.create(payload);
         setSuccess("Cita creada correctamente");
       }
 
@@ -107,13 +166,14 @@ function GestionCitas() {
   };
 
   const handleEdit = (cita) => {
+    loadVehiculos(cita.cliente_id);
     setEditingCita(cita);
     setFormData({
       cliente_id: cita.cliente_id || "",
       vehiculo_id: cita.vehiculo_id || "",
       servicio_id: cita.servicio_id || "",
-      fecha_cita: cita.fecha_cita || "",
-      hora_inicio: cita.hora_inicio ? cita.hora_inicio.slice(0, 5) : "",
+      fecha_cita: normalizeDate(cita.fecha_cita),
+      hora_inicio: normalizeTime(cita.hora_inicio),
       estado: cita.estado || "Programada",
       observaciones: cita.observaciones || ""
     });
@@ -132,9 +192,9 @@ function GestionCitas() {
     }
   };
 
-  const getUsuarioNombre = (usuarioId) => {
-    const usuario = usuarios.find(c => c.id === usuarioId);
-    return usuario ? `${usuario.nombre} ${usuario.apellido}` : "N/A";
+  const getUsuarioNombre = (clienteId) => {
+    const cliente = clientes.find(c => c.id === clienteId);
+    return cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A";
   };
 
   const getVehiculoInfo = (vehiculoId) => {
@@ -280,11 +340,19 @@ function GestionCitas() {
                     color: "#1e293b",
                     marginBottom: "0.5rem"
                   }}>
-                    Usuario
+                    Cliente
                   </label>
                   <select
                     value={formData.cliente_id}
-                    onChange={(e) => setFormData({ ...formData, cliente_id: e.target.value })}
+                    onChange={(e) => {
+                      const selectedCliente = e.target.value;
+                      setFormData({ ...formData, cliente_id: selectedCliente, vehiculo_id: "" });
+                      if (selectedCliente) {
+                        loadVehiculos(Number(selectedCliente));
+                      } else {
+                        loadVehiculos();
+                      }
+                    }}
                     style={{
                       width: "100%",
                       padding: "0.75rem 1rem",
@@ -297,9 +365,9 @@ function GestionCitas() {
                     required
                   >
                     <option value="">Seleccionar usuario</option>
-                    {usuarios.map(usuario => (
-                      <option key={usuario.id} value={usuario.id}>
-                        {usuario.nombre} {usuario.apellido}
+                    {clientes.map(cliente => (
+                      <option key={cliente.id} value={cliente.id}>
+                        {cliente.nombre} {cliente.apellido}
                       </option>
                     ))}
                   </select>
@@ -380,7 +448,11 @@ function GestionCitas() {
                   value={formData.fecha_cita && formData.hora_inicio ? `${formData.fecha_cita}T${formData.hora_inicio}` : ""}
                   onChange={(e) => {
                     const [fecha, hora] = e.target.value.split('T');
-                    setFormData({ ...formData, fecha_cita: fecha || "", hora_inicio: hora ? hora.slice(0, 5) : "" });
+                    setFormData({
+                      ...formData,
+                      fecha_cita: normalizeDate(fecha),
+                      hora_inicio: normalizeTime(hora)
+                    });
                   }}
                   required
                 />
@@ -466,7 +538,7 @@ function GestionCitas() {
                   onClick={() => {
                     setShowForm(false);
                     setEditingCita(null);
-                    setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_hora: "", estado: "programada", observaciones: "" });
+                    setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_cita: "", hora_inicio: "", estado: "Programada", observaciones: "" });
                   }}
                 >
                   <FiX size={16} />

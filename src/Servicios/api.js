@@ -124,6 +124,17 @@ export const vehiculosService = {
   },
 };
 
+// Servicios de clientes
+export const clientesService = {
+  async getAll() {
+    return apiRequest('/clientes');
+  },
+
+  async getById(id) {
+    return apiRequest(`/clientes/${id}`);
+  }
+};
+
 // Servicios de servicios
 export const serviciosService = {
   async getAll() {

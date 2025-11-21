@@ -16,13 +16,13 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
-import { vehiculosService, usuariosService } from "../Servicios/api";
+import { vehiculosService, clientesService } from "../Servicios/api";
 import { AuthContext } from "../context/AuthContext"; // Importar el contexto de autenticación
 
 function GestionVehiculos() {
   const { user } = useContext(AuthContext); // Obtener el usuario y su rol
   const [vehiculos, setVehiculos] = useState([]);
-  const [usuarios, setUsuarios] = useState([]);
+  const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -54,19 +54,19 @@ function GestionVehiculos() {
     }
   }, [user]);
 
-  const loadUsuarios = useCallback(async () => {
+  const loadClientes = useCallback(async () => {
     try {
-      const data = await usuariosService.getAll();
-      setUsuarios(data);
+      const data = await clientesService.getAll();
+      setClientes(data);
     } catch (error) {
-      console.error("Error al cargar usuarios:", error);
+      console.error("Error al cargar clientes:", error);
     }
   }, []);
 
   useEffect(() => {
     loadVehiculos();
-    loadUsuarios();
-  }, [loadVehiculos, loadUsuarios]);
+    loadClientes();
+  }, [loadVehiculos, loadClientes]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -123,7 +123,7 @@ function GestionVehiculos() {
   };
 
   const getUsuarioNombre = (usuarioId) => {
-    const usuario = usuarios.find((c) => c.id === usuarioId);
+    const usuario = clientes.find((c) => c.id === usuarioId);
     return usuario ? `${usuario.nombre} ${usuario.apellido}` : "N/A";
   };
 
@@ -298,10 +298,10 @@ function GestionVehiculos() {
                     }}
                     required
                   >
-                    <option value="">Seleccionar usuario</option>
-                    {usuarios.map((usuario) => (
-                      <option key={usuario.id} value={usuario.id}>
-                        {usuario.nombre} {usuario.apellido}
+                    <option value="">Seleccionar cliente</option>
+                    {clientes.map((cliente) => (
+                      <option key={cliente.id} value={cliente.id}>
+                        {cliente.nombre} {cliente.apellido}
                       </option>
                     ))}
                   </select>
