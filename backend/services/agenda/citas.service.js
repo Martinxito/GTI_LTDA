@@ -91,6 +91,7 @@ async function updateAppointment(id, payload) {
   const horaFin = payload.hora_fin || calculateEndTime(horaInicio, servicio.duracion_estimada || 60);
 
   const data = {
+    cliente_id: payload.cliente_id || existing.cliente_id,
     vehiculo_id: payload.vehiculo_id || existing.vehiculo_id,
     servicio_id: servicioId,
     mecanico_id: payload.mecanico_id || existing.mecanico_id,
@@ -103,7 +104,7 @@ async function updateAppointment(id, payload) {
     costo_total: payload.costo_total ?? existing.costo_total
   };
 
-  if (!data.vehiculo_id || !data.servicio_id || !data.fecha_cita || !data.hora_inicio) {
+  if (!data.cliente_id || !data.vehiculo_id || !data.servicio_id || !data.fecha_cita || !data.hora_inicio) {
     throw new ServiceError('Faltan datos obligatorios para actualizar la cita', { status: 400 });
   }
 
