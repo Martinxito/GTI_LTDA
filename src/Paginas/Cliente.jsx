@@ -28,18 +28,18 @@ function Cliente() {
       setLoading(true);
       const [citasData, vehiculosData] = await Promise.all([
         citasService.getAll(),
-        vehiculosService.getByCliente(user.id)
+        vehiculosService.getByUsuario(user.id)
       ]);
 
-      // Filtrar citas del cliente actual
+      // Filtrar citas del usuario actual
       const citasCliente = Array.isArray(citasData) && user
-        ? citasData.filter(cita => cita && cita.cliente_id === user.id)
+        ? citasData.filter(cita => cita && cita.usuario_id === user.id)
         : [];
       setCitas(citasCliente);
 
-      // Filtrar vehículos del cliente actual
+      // Filtrar vehículos del usuario actual
       const vehiculosCliente = Array.isArray(vehiculosData) && user
-        ? vehiculosData.filter(vehiculo => vehiculo && vehiculo.cliente_id === user.id)
+        ? vehiculosData.filter(vehiculo => vehiculo && vehiculo.usuario_id === user.id)
         : [];
       setVehiculos(vehiculosCliente);
     } catch (error) {

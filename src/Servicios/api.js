@@ -111,8 +111,8 @@ export const vehiculosService = {
     });
   },
 
-  async getByCliente(clienteId) {
-    return apiRequest(`/vehiculos/cliente/${clienteId}`);
+  async getByUsuario(usuarioId) {
+    return apiRequest(`/vehiculos/usuario/${usuarioId}`);
   },
 
   async getHistorial(id) {

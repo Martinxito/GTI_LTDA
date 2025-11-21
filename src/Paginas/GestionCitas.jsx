@@ -27,7 +27,7 @@ function GestionCitas() {
   const [editingCita, setEditingCita] = useState(null);
 
   const [formData, setFormData] = useState({
-    cliente_id: "",
+    usuario_id: "",
     vehiculo_id: "",
     servicio_id: "",
     fecha_cita: "",
@@ -108,10 +108,10 @@ function GestionCitas() {
     }
   };
 
-  const loadVehiculos = async (clienteId) => {
+  const loadVehiculos = async (usuarioId) => {
     try {
-      const data = clienteId
-        ? await vehiculosService.getByCliente(clienteId)
+      const data = usuarioId
+        ? await vehiculosService.getByUsuario(usuarioId)
         : await vehiculosService.getAll();
       setVehiculos(data);
     } catch (error) {
@@ -139,15 +139,15 @@ function GestionCitas() {
 
       const payload = {
         ...formData,
-        cliente_id: Number(formData.cliente_id),
+        usuario_id: Number(formData.usuario_id),
         vehiculo_id: Number(formData.vehiculo_id),
         servicio_id: Number(formData.servicio_id),
         fecha_cita: fecha,
         hora_inicio: hora
       };
 
-      if (!payload.cliente_id || !payload.vehiculo_id || !payload.servicio_id || !payload.fecha_cita || !payload.hora_inicio) {
-        setError("Debes completar el cliente, vehículo, servicio, fecha y hora");
+      if (!payload.usuario_id || !payload.vehiculo_id || !payload.servicio_id || !payload.fecha_cita || !payload.hora_inicio) {
+        setError("Debes completar el usuario, vehículo, servicio, fecha y hora");
         return;
       }
 
@@ -161,7 +161,7 @@ function GestionCitas() {
 
       setShowForm(false);
       setEditingCita(null);
-      setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_cita: "", hora_inicio: "", estado: "Programada", observaciones: "" });
+      setFormData({ usuario_id: "", vehiculo_id: "", servicio_id: "", fecha_cita: "", hora_inicio: "", estado: "Programada", observaciones: "" });
       loadCitas();
     } catch (error) {
       setError("Error al guardar cita: " + error.message);
@@ -169,10 +169,10 @@ function GestionCitas() {
   };
 
   const handleEdit = (cita) => {
-    loadVehiculos(cita.cliente_id);
+    loadVehiculos(cita.usuario_id);
     setEditingCita(cita);
     setFormData({
-      cliente_id: cita.cliente_id || "",
+      usuario_id: cita.usuario_id || "",
       vehiculo_id: cita.vehiculo_id || "",
       servicio_id: cita.servicio_id || "",
       fecha_cita: normalizeDate(cita.fecha_cita),
@@ -195,9 +195,9 @@ function GestionCitas() {
     }
   };
 
-  const getUsuarioNombre = (clienteId) => {
-    const cliente = usuarios.find(c => c.id === clienteId);
-    return cliente ? `${cliente.nombre} ${cliente.apellido}` : "N/A";
+  const getUsuarioNombre = (usuarioId) => {
+    const usuario = usuarios.find(c => c.id === usuarioId);
+    return usuario ? `${usuario.nombre} ${usuario.apellido}` : "N/A";
   };
 
   const getVehiculoInfo = (vehiculoId) => {
@@ -242,7 +242,7 @@ function GestionCitas() {
     {
       key: "usuario_nombre",
       label: "Usuario",
-      render: (cita) => getUsuarioNombre(cita.cliente_id)
+      render: (cita) => getUsuarioNombre(cita.usuario_id)
     },
     {
       key: "vehiculo_info",
@@ -320,7 +320,7 @@ function GestionCitas() {
             onClick={() => {
               setShowForm(true);
               setEditingCita(null);
-              setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_cita: "", hora_inicio: "", estado: "Programada", observaciones: "" });
+              setFormData({ usuario_id: "", vehiculo_id: "", servicio_id: "", fecha_cita: "", hora_inicio: "", estado: "Programada", observaciones: "" });
             }}
           >
             <FiPlus size={16} />
@@ -343,15 +343,15 @@ function GestionCitas() {
                     color: "#1e293b",
                     marginBottom: "0.5rem"
                   }}>
-                    Cliente
+                    Usuario
                   </label>
                   <select
-                    value={formData.cliente_id}
+                    value={formData.usuario_id}
                     onChange={(e) => {
-                      const selectedCliente = e.target.value;
-                      setFormData({ ...formData, cliente_id: selectedCliente, vehiculo_id: "" });
-                      if (selectedCliente) {
-                        loadVehiculos(Number(selectedCliente));
+                      const selectedUsuario = e.target.value;
+                      setFormData({ ...formData, usuario_id: selectedUsuario, vehiculo_id: "" });
+                      if (selectedUsuario) {
+                        loadVehiculos(Number(selectedUsuario));
                       } else {
                         loadVehiculos();
                       }
@@ -368,9 +368,9 @@ function GestionCitas() {
                     required
                   >
                     <option value="">Seleccionar usuario</option>
-                    {usuarios.map(cliente => (
-                      <option key={cliente.id} value={cliente.id}>
-                        {cliente.nombre} {cliente.apellido}
+                    {usuarios.map(usuario => (
+                      <option key={usuario.id} value={usuario.id}>
+                        {usuario.nombre} {usuario.apellido}
                       </option>
                     ))}
                   </select>
@@ -541,7 +541,7 @@ function GestionCitas() {
                   onClick={() => {
                     setShowForm(false);
                     setEditingCita(null);
-                    setFormData({ cliente_id: "", vehiculo_id: "", servicio_id: "", fecha_cita: "", hora_inicio: "", estado: "Programada", observaciones: "" });
+                    setFormData({ usuario_id: "", vehiculo_id: "", servicio_id: "", fecha_cita: "", hora_inicio: "", estado: "Programada", observaciones: "" });
                   }}
                 >
                   <FiX size={16} />
