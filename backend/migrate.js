@@ -15,6 +15,23 @@ async function migrate() {
     console.log('Iniciando migración completa a PostgreSQL...');
 
     await client.query(`
+      DROP TABLE IF EXISTS
+        repuestos_utilizados,
+        historial_mantenimiento,
+        citas,
+        vehiculos,
+        servicios,
+        inventario,
+        facturas,
+        pagos,
+        detalles_factura,
+        clientes,
+        usuarios
+      CASCADE;
+    `);
+    console.log('✓ Tablas previas eliminadas');
+
+    await client.query(`
       CREATE TABLE IF NOT EXISTS usuarios (
         id SERIAL PRIMARY KEY,
         nombre VARCHAR(100) NOT NULL,
