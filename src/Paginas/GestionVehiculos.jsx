@@ -16,13 +16,13 @@ import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import Alert from "../components/ui/Alert";
 import Table from "../components/ui/Table";
-import { vehiculosService, clientesService } from "../Servicios/api";
+import { vehiculosService, usuariosService } from "../Servicios/api";
 import { AuthContext } from "../context/AuthContext"; // Importar el contexto de autenticación
 
 function GestionVehiculos() {
   const { user } = useContext(AuthContext); // Obtener el usuario y su rol
   const [vehiculos, setVehiculos] = useState([]);
-  const [clientes, setClientes] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -35,7 +35,7 @@ function GestionVehiculos() {
     año: "",
     placa: "",
     color: "",
-    cliente_id: ""
+    usuario_id: ""
   });
 
   const loadVehiculos = useCallback(async () => {
@@ -54,25 +54,28 @@ function GestionVehiculos() {
     }
   }, [user]);
 
-  const loadClientes = useCallback(async () => {
+  const loadUsuarios = useCallback(async () => {
     try {
-      const data = await clientesService.getAll();
-      setClientes(data);
+      const data = await usuariosService.getAll();
+      const onlyClients = Array.isArray(data)
+        ? data.filter((usuario) => usuario.rol === "cliente")
+        : [];
+      setUsuarios(onlyClients);
     } catch (error) {
-      console.error("Error al cargar clientes:", error);
+      console.error("Error al cargar usuarios:", error);
     }
   }, []);
 
   useEffect(() => {
     loadVehiculos();
-    loadClientes();
-  }, [loadVehiculos, loadClientes]);
+    loadUsuarios();
+  }, [loadVehiculos, loadUsuarios]);
 
   // Cuando el usuario es un cliente, fijamos automáticamente su ID como propietario
   // para evitar envíos con propietario vacío o inválido.
   useEffect(() => {
     if (user?.rol === "cliente" && user?.id) {
-      setFormData((prev) => ({ ...prev, cliente_id: String(user.id) }));
+      setFormData((prev) => ({ ...prev, usuario_id: String(user.id) }));
     }
   }, [user]);
 
@@ -82,9 +85,11 @@ function GestionVehiculos() {
     setSuccess("");
 
     try {
+      const propietarioId = Number(user?.rol === "cliente" ? user.id : formData.usuario_id);
+
       const payload = {
         ...formData,
-        cliente_id: Number(user?.rol === "cliente" ? user.id : formData.cliente_id),
+        usuario_id: propietarioId,
         año: Number(formData.año)
       };
 
@@ -98,7 +103,7 @@ function GestionVehiculos() {
 
       setShowForm(false);
       setEditingVehiculo(null);
-      setFormData({ marca: "", modelo: "", año: "", placa: "", color: "", cliente_id: "" });
+      setFormData({ marca: "", modelo: "", año: "", placa: "", color: "", usuario_id: "" });
       loadVehiculos();
     } catch (error) {
       setError("Error al guardar vehículo: " + error.message);
@@ -113,7 +118,7 @@ function GestionVehiculos() {
       año: vehiculo.año || "",
       placa: vehiculo.placa || "",
       color: vehiculo.color || "",
-      cliente_id: vehiculo.cliente_id ? String(vehiculo.cliente_id) : ""
+      usuario_id: vehiculo.cliente_id ? String(vehiculo.cliente_id) : ""
     });
     setShowForm(true);
   };
@@ -131,7 +136,7 @@ function GestionVehiculos() {
   };
 
   const getUsuarioNombre = (usuarioId) => {
-    const usuario = clientes.find((c) => c.id === usuarioId);
+    const usuario = usuarios.find((c) => c.id === usuarioId);
     return usuario ? `${usuario.nombre} ${usuario.apellido}` : "N/A";
   };
 
@@ -211,7 +216,7 @@ function GestionVehiculos() {
                   año: "",
                   placa: "",
                   color: "",
-                  cliente_id: ""
+                  usuario_id: ""
                 });
               }}
             >
@@ -291,9 +296,9 @@ function GestionVehiculos() {
                     Propietario
                   </label>
                   <select
-                    value={formData.cliente_id}
+                    value={formData.usuario_id}
                     onChange={(e) =>
-                      setFormData({ ...formData, cliente_id: e.target.value })
+                      setFormData({ ...formData, usuario_id: e.target.value })
                     }
                     disabled={user?.rol === "cliente"}
                     style={{
@@ -310,7 +315,7 @@ function GestionVehiculos() {
                     <option value="">
                       {user?.rol === "cliente" ? "Tu usuario" : "Seleccionar cliente"}
                     </option>
-                    {clientes.map((cliente) => (
+                    {usuarios.map((cliente) => (
                       <option key={cliente.id} value={cliente.id}>
                         {cliente.nombre} {cliente.apellido}
                       </option>

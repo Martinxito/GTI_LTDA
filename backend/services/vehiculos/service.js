@@ -1,6 +1,6 @@
 const { ServiceError } = require('../utils/serviceError');
 const repository = require('./repository');
-const clientesRepository = require('../clientes/repository');
+const usuariosRepository = require('../identity/repository');
 const historialService = require('../historial/service');
 
 async function listVehicles() {
@@ -21,6 +21,7 @@ async function listVehiclesByClient(clienteId) {
 
 async function createVehicle(payload) {
   const {
+    usuario_id,
     cliente_id,
     marca,
     modelo,
@@ -34,7 +35,7 @@ async function createVehicle(payload) {
     observaciones
   } = payload;
 
-  const ownerId = Number(cliente_id);
+  const ownerId = Number(usuario_id ?? cliente_id);
 
   if (!ownerId || !marca || !modelo || !año || !placa) {
     throw new ServiceError('Faltan datos obligatorios para registrar el vehículo', { status: 400 });
@@ -44,13 +45,13 @@ async function createVehicle(payload) {
     throw new ServiceError('Debe seleccionar un propietario válido', { status: 400 });
   }
 
-  const client = await clientesRepository.findClientById(ownerId);
+  const owner = await usuariosRepository.findById(ownerId);
 
-  if (!client) {
+  if (!owner) {
     throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
   }
 
-  if (client.usuario_activo === false) {
+  if (owner.activo === false) {
     throw new ServiceError('El propietario seleccionado no existe o no está activo', { status: 400 });
   }
 
@@ -105,7 +106,7 @@ async function updateVehicle(id, payload) {
   };
 
   const data = {
-    cliente_id: resolveField('cliente_id'),
+    cliente_id: resolveField('usuario_id') ?? resolveField('cliente_id'),
     marca: resolveField('marca'),
     modelo: resolveField('modelo'),
     año: resolveField('año'),
@@ -130,13 +131,13 @@ async function updateVehicle(id, payload) {
     throw new ServiceError('Debe seleccionar un propietario válido', { status: 400 });
   }
 
-  const client = await clientesRepository.findClientById(data.cliente_id);
+  const owner = await usuariosRepository.findById(data.cliente_id);
 
-  if (!client) {
+  if (!owner) {
     throw new ServiceError('El propietario seleccionado no existe', { status: 400 });
   }
 
-  if (client.usuario_activo === false) {
+  if (owner.activo === false) {
     throw new ServiceError('El propietario seleccionado no existe o no está activo', { status: 400 });
   }
 

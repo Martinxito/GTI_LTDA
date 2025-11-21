@@ -124,14 +124,14 @@ export const vehiculosService = {
   },
 };
 
-// Servicios de clientes
-export const clientesService = {
+// Servicios de usuarios
+export const usuariosService = {
   async getAll() {
-    return apiRequest('/clientes');
+    return apiRequest('/usuarios');
   },
 
   async getById(id) {
-    return apiRequest(`/clientes/${id}`);
+    return apiRequest(`/usuarios/${id}`);
   }
 };
 
