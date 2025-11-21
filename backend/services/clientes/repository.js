@@ -46,7 +46,7 @@ async function listClients() {
        COUNT(v.id) AS total_vehiculos
      FROM usuarios u
      LEFT JOIN vehiculos v ON v.cliente_id = u.id AND v.activo = true
-     WHERE u.rol = 'cliente' AND u.activo = true
+     WHERE LOWER(u.rol) = 'cliente' AND u.activo = true
      GROUP BY u.id
      ORDER BY u.nombre, u.apellido`
   );
@@ -59,7 +59,7 @@ async function findClientById(id) {
     `SELECT
        ${clientColumns}
      FROM usuarios u
-     WHERE u.id = $1 AND u.rol = 'cliente'`,
+     WHERE u.id = $1 AND LOWER(u.rol) = 'cliente'`,
     [id]
   );
   return rows[0] || null;
