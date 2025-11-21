@@ -12,33 +12,69 @@ function calculateEndTime(horaInicio, duracionEstimada) {
   return `${finHora.toString().padStart(2, '0')}:${finMinutos.toString().padStart(2, '0')}`;
 }
 
-async function listAppointments() {
+async function listAppointments(user) {
+  if (user?.rol === 'cliente') {
+    return repository.listAppointmentsByUser(user.id);
+  }
+
+  if (user?.rol === 'mecanico') {
+    return repository.listAppointmentsByMechanic(user.id);
+  }
+
   return repository.listAppointments();
 }
 
-async function listAppointmentsByDate(fecha) {
+async function listAppointmentsByDate(fecha, user) {
   if (!fecha) {
     throw new ServiceError('La fecha es obligatoria', { status: 400 });
   }
+
+  if (user?.rol === 'cliente') {
+    return repository.listAppointmentsByDateAndUser(fecha, user.id);
+  }
+
+  if (user?.rol === 'mecanico') {
+    const citas = await repository.listAppointmentsByDate(fecha);
+    return citas.filter((cita) => Number(cita.mecanico_id) === Number(user.id));
+  }
+
   return repository.listAppointmentsByDate(fecha);
 }
 
-async function listAppointmentsByMechanic(mecanicoId) {
+async function listAppointmentsByMechanic(mecanicoId, user) {
   if (!mecanicoId) {
     throw new ServiceError('El identificador del mecánico es obligatorio', { status: 400 });
   }
+
+  if (user?.rol === 'cliente') {
+    throw new ServiceError('No autorizado para consultar citas de otros usuarios', { status: 403 });
+  }
+
+  if (user?.rol === 'mecanico' && Number(mecanicoId) !== Number(user.id)) {
+    throw new ServiceError('No autorizado para consultar citas de otros mecánicos', { status: 403 });
+  }
+
   return repository.listAppointmentsByMechanic(mecanicoId);
 }
 
-async function getAppointment(id) {
+async function getAppointment(id, user) {
   const cita = await repository.findAppointmentById(id);
   if (!cita) {
     throw new ServiceError('Cita no encontrada', { status: 404 });
   }
+
+  if (user?.rol === 'cliente' && Number(cita.usuario_id) !== Number(user.id)) {
+    throw new ServiceError('No autorizado para acceder a esta cita', { status: 403 });
+  }
+
+  if (user?.rol === 'mecanico' && cita.mecanico_id && Number(cita.mecanico_id) !== Number(user.id)) {
+    throw new ServiceError('No autorizado para acceder a esta cita', { status: 403 });
+  }
+
   return cita;
 }
 
-async function createAppointment(payload) {
+async function createAppointment(payload, user) {
   const {
     usuario_id,
     vehiculo_id,
@@ -51,6 +87,10 @@ async function createAppointment(payload) {
 
   if (!usuario_id || !vehiculo_id || !servicio_id || !fecha_cita || !hora_inicio) {
     throw new ServiceError('Faltan datos obligatorios para crear la cita', { status: 400 });
+  }
+
+  if (user?.rol === 'cliente' && Number(usuario_id) !== Number(user.id)) {
+    throw new ServiceError('No autorizado para crear citas para otros usuarios', { status: 403 });
   }
 
   const usuario = await usuariosRepository.findById(usuario_id);
@@ -94,11 +134,15 @@ async function createAppointment(payload) {
   }
 }
 
-async function updateAppointment(id, payload) {
-  const existing = await getAppointment(id);
+async function updateAppointment(id, payload, user) {
+  const existing = await getAppointment(id, user);
 
   const usuarioId = payload.usuario_id || existing.usuario_id;
   const vehiculoId = payload.vehiculo_id || existing.vehiculo_id;
+
+  if (user?.rol === 'cliente' && Number(usuarioId) !== Number(user.id)) {
+    throw new ServiceError('No autorizado para actualizar citas de otros usuarios', { status: 403 });
+  }
 
   const usuario = await usuariosRepository.findById(usuarioId);
   if (!usuario) {
@@ -145,8 +189,8 @@ async function updateAppointment(id, payload) {
   return { mensaje: 'Cita actualizada exitosamente' };
 }
 
-async function cancelAppointment(id, observaciones) {
-  await getAppointment(id);
+async function cancelAppointment(id, observaciones, user) {
+  await getAppointment(id, user);
   await repository.updateAppointmentStatus(id, 'Cancelada');
   if (observaciones) {
     await repository.updateAppointmentNotes(id, observaciones);
