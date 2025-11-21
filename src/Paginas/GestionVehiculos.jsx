@@ -68,6 +68,14 @@ function GestionVehiculos() {
     loadClientes();
   }, [loadVehiculos, loadClientes]);
 
+  // Cuando el usuario es un cliente, fijamos automáticamente su ID como propietario
+  // para evitar envíos con propietario vacío o inválido.
+  useEffect(() => {
+    if (user?.rol === "cliente" && user?.id) {
+      setFormData((prev) => ({ ...prev, cliente_id: String(user.id) }));
+    }
+  }, [user]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -76,7 +84,7 @@ function GestionVehiculos() {
     try {
       const payload = {
         ...formData,
-        cliente_id: Number(formData.cliente_id),
+        cliente_id: Number(user?.rol === "cliente" ? user.id : formData.cliente_id),
         año: Number(formData.año)
       };
 
@@ -287,6 +295,7 @@ function GestionVehiculos() {
                     onChange={(e) =>
                       setFormData({ ...formData, cliente_id: e.target.value })
                     }
+                    disabled={user?.rol === "cliente"}
                     style={{
                       width: "100%",
                       padding: "0.75rem 1rem",
@@ -298,7 +307,9 @@ function GestionVehiculos() {
                     }}
                     required
                   >
-                    <option value="">Seleccionar cliente</option>
+                    <option value="">
+                      {user?.rol === "cliente" ? "Tu usuario" : "Seleccionar cliente"}
+                    </option>
                     {clientes.map((cliente) => (
                       <option key={cliente.id} value={cliente.id}>
                         {cliente.nombre} {cliente.apellido}
