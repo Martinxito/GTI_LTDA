@@ -21,7 +21,7 @@ function Dashboard() {
         color: "#1e293b",
         marginBottom: "1rem"
       }}>
-        Panel general
+        Panel General
       </h1>
       
       <div style={{
